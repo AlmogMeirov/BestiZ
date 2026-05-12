@@ -213,7 +213,7 @@ BestiZ uses a broadcast + client-side filtering approach.
 
 The complete database documentation, including the full ERD diagram, schema explanation, constraints, indexes, and design decisions, is documented separately in:
 
-📄 [docs/DATABASE.md](./docs/DATABASE.md)
+📄 [docs/DATABASE.md](./docs/BestiZ_Database_Architecture.md)
 
 ---
 
