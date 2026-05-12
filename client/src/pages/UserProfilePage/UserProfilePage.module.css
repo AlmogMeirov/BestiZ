@@ -1,0 +1,216 @@
+/* 
+ * User profile page styles.
+ * Layout philosophy: the profile header (cover + identity card) spans the
+ * full width of the page like Facebook/LinkedIn, while the posts section
+ * below stays in a narrower readable column for comfortable reading.
+  */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  /* Take the full available width inside Layout's main column. */
+  width: 100%;
+}
+
+/*Profile card with cover */
+
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  padding-bottom: 24px;
+  /* Full-width within the page container. */
+  width: 100%;
+}
+
+.cover {
+  height: 220px;
+  background: linear-gradient(
+    120deg,
+    #6366f1 0%,
+    #8b5cf6 50%,
+    #ec4899 100%
+  );
+}
+
+/* Row that holds the (large) avatar on the left. The avatar overlaps
+   the cover by ~50% via negative margin. The action buttons used to be
+   here too, but they're now below the identity text in a dedicated
+   actions row — that aligns them with the username/bio instead of
+   floating awkwardly against the cover. */
+.identityRow {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 32px;
+  margin-top: -60px;
+}
+
+.avatar {
+  box-shadow:
+    0 0 0 5px var(--color-surface),
+    0 8px 24px rgba(15, 23, 42, 0.22);
+}
+
+/* Action buttons (Edit profile / Add friend / etc).
+   Positioned below the identity text, on the left, so they line up with
+   the username and bio rather than crowding the cover. */
+.identityActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 16px 32px 0 32px;
+}
+
+/* Text block below the row: name, @username, bio, meta. */
+.identityText {
+  padding: 20px 32px 0 32px;
+}
+
+.displayName {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.username {
+  font-size: 16px;
+  color: var(--color-text-muted);
+  margin: 0 0 16px 0;
+}
+
+.bio {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin: 0 0 16px 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 640px;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-success);
+  background-color: rgba(22, 163, 74, 0.08);
+  border-radius: var(--radius-sm);
+}
+
+.alert {
+  margin: 16px 32px 0 32px;
+  background-color: rgba(220, 38, 38, 0.08);
+  color: var(--color-error);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.message {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin-top: 80px;
+  line-height: 1.6;
+}
+
+/* Posts section
+   The posts stay in a comfortable reading column rather than spanning
+   the full width — long lines of text are hard to read. */
+
+.postsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.postsTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 4px 0;
+  padding-left: 4px;
+}
+
+/*Infinite scroll */
+
+.sentinel {
+  min-height: 1px;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.loadingMore {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  padding: 12px;
+}
+
+.endMessage {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding: 20px 0 8px 0;
+}
+
+/*  Responsive  */
+
+@media (max-width: 720px) {
+  .cover {
+    height: 160px;
+  }
+
+  .identityRow {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 20px;
+    margin-top: -48px;
+  }
+
+  .identityActions {
+    width: 100%;
+    padding-bottom: 0;
+  }
+
+  .identityText {
+    padding: 16px 20px 0 20px;
+  }
+
+  .displayName {
+    font-size: 26px;
+  }
+
+  .alert {
+    margin: 16px 20px 0 20px;
+  }
+}

@@ -1,0 +1,42 @@
+/* 
+ * Feed page styles.module.css
+ * This file contains styles for the feed page, which displays a list of posts
+ * and allows users to filter and load more posts as they scroll.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Container for the filter tabs above the feed. The tabs themselves are
+   inline-flex so the row reserves only the space they need. */
+.filtersRow {
+  display: flex;
+  justify-content: center;
+}
+
+/* Invisible target the IntersectionObserver watches at the end of the list.
+   It has just enough height to be observable; the user shouldn't notice it. */
+.sentinel {
+  min-height: 1px;
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.loadingMore {
+  color: #64748b;
+  font-size: 0.9rem;
+  padding: 0.75rem;
+}
+
+.endMessage {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  padding: 1.5rem 0 0.5rem 0;
+}

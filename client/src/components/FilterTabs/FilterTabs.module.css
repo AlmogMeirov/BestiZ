@@ -1,0 +1,51 @@
+/**
+ * FilterTabs.module.css
+  * CSS styles for the FilterTabs component.
+  * This file defines the styles for the FilterTabs component, which is a horizontal segmented control used to switch between different feed filters (All, Mine, Friends).
+  * The styles include the layout of the tabs, the appearance of active and inactive tabs, and hover/focus states for better user interaction and accessibility.
+ */
+
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab {
+  /* Reset native button styles. */
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-radius: calc(var(--radius-md) - 2px);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover:not(.tabActive) {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.tabActive {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.tabActive:hover {
+  background-color: var(--color-primary);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

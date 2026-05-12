@@ -1,0 +1,96 @@
+/*
+ * Friends list page styles.
+ */
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.item:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.userLink {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.userLink:hover .displayName {
+  color: var(--color-primary);
+}
+
+.displayName {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: color 0.15s ease;
+}
+
+.username {
+  display: block;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--color-text-muted);
+}
+
+.emptyHint {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.message {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin-top: 40px;
+}
+
+.alert {
+  background-color: rgba(220, 38, 38, 0.08);
+  color: var(--color-error);
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  margin-bottom: 16px;
+}

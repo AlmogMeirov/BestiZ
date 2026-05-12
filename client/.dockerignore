@@ -1,0 +1,21 @@
+# Don't copy host node_modules into the container — they may be built for
+# the wrong platform (Windows vs Linux Alpine). The container runs its own
+# `npm install` during the build.
+node_modules
+npm-debug.log
+
+# Don't copy build outputs — they get regenerated in the container.
+dist
+build
+
+# Don't copy editor / IDE config
+.vscode
+.idea
+
+# Don't copy git history
+.git
+.gitignore
+
+# Don't copy local environment files
+.env
+.env.localss

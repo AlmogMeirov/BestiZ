@@ -1,0 +1,89 @@
+/* 
+ * CommentsList styles.
+ * This file contains styles for the CommentsList component, which displays a list of comments for a post, along with a form to add new comments.*/
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+/*  Compose form  */
+.composeForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.composeTextarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+  min-height: 56px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.composeTextarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.composeTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.composeFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.counter {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/*  States  */
+.message {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  padding: 16px;
+}
+
+.empty {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  padding: 16px;
+  font-style: italic;
+}
+
+.alert {
+  background-color: rgba(220, 38, 38, 0.08);
+  color: var(--color-error);
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+/*  List  */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

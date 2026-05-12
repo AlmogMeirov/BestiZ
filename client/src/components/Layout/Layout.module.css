@@ -1,0 +1,92 @@
+/*  Layout styles.
+ Sticky header with brand, search, nav, and user actions.
+ */
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.brand {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.searchWrapper {
+  flex: 1;
+  max-width: 400px;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.navLink {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navLink:hover {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.navLinkActive {
+  color: var(--color-primary);
+  background-color: rgba(99, 102, 241, 0.08);
+}
+
+.navLinkActive:hover {
+  color: var(--color-primary);
+  background-color: rgba(99, 102, 241, 0.12);
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.main {
+  flex: 1;
+}
+
+.mainInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}

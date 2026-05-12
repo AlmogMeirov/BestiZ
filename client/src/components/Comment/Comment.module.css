@@ -1,0 +1,156 @@
+/* Comment styles
+* This CSS module defines styles for the Comment component, including the comment card, header, content, footer, and edit mode. 
+*/
+
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-sm);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.author {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.author:hover .displayName {
+  color: var(--color-primary);
+}
+
+.displayName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: color 0.15s ease;
+}
+
+.username {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.editingBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background-color: rgba(99, 102, 241, 0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+/*  Content */
+.content {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+/*  Footer */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.timestamp {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.editedTag {
+  font-style: italic;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Lighter "link-style" buttons for comments, fewer visual primitives than full Button components to keep the comment card compact. */
+.linkButton {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.linkButton:hover {
+  color: var(--color-primary);
+}
+
+.linkButtonDanger:hover {
+  color: var(--color-error);
+}
+
+/*  Edit mode  */
+.editTextarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+  min-height: 48px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.editFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.counter {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.editButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.alert {
+  background-color: rgba(220, 38, 38, 0.08);
+  color: var(--color-error);
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
