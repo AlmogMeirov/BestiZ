@@ -237,8 +237,4 @@ All SQL queries use parameterized statements through the `pg` driver.
 • PostgreSQL full-text search  
 • User blocking  
 
----
 
-# License
-
-Built as a portfolio and interview assignment project.
