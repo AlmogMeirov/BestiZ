@@ -69,13 +69,13 @@ The project focuses on clean backend architecture, relational database design, s
 ## Authentication
 
 ### Sign In
-![Sign In](./docs/screenshots/Signin.jpg)
+![Sign In](./docs/screenshots/Singin.jpg)
 
 ### Invalid Credentials
-![Invalid Credentials](./docs/screenshots/Signin_wrongPassword.jpg)
+![Invalid Credentials](./docs/screenshots/Singin_wrongPassword.jpg)
 
 ### Sign Up
-![Sign Up](./docs/screenshots/Signup.jpg)
+![Sign Up](./docs/screenshots/Singup.jpg)
 
 ---
 
