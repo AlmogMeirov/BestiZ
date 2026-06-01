@@ -5,6 +5,8 @@ A real-time social network built with React, Node.js, PostgreSQL, and Socket.IO.
 BestiZ is a full-stack social networking application where users can connect with friends, create posts with privacy controls, comment in real time, and browse a personalized feed.
 
 The project focuses on clean backend architecture, relational database design, secure authentication, and real-time synchronization.
+
+
 ---
 
 ## Project Status
