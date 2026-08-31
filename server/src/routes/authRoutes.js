@@ -17,6 +17,9 @@ const router = Router();
 // Public endpoints no authentication required.
 router.post('/register', asyncHandler(authController.register));
 router.post('/login', asyncHandler(authController.login));
+// Reads the refresh cookie rather than the access cookie, so it must stay
+// public — the access token is expired by the time this is called.
+router.post('/refresh', asyncHandler(authController.refresh));
 router.post('/logout', authController.logout);
 
 // Protected endpoint requires a valid access token.

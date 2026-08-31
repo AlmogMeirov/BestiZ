@@ -4,12 +4,15 @@
   "description": "Backend for the BestiZ real-time social network",
   "main": "src/index.js",
   "type": "module",
-  "scripts": {
+   "scripts": {
     "dev": "node --watch src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -18,5 +21,9 @@
     "pg": "^8.13.0",
     "socket.io": "^4.8.0",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.11"
   }
 }

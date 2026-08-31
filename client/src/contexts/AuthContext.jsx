@@ -7,6 +7,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import * as authApi from '../api/authApi.js';
+import { setSessionExpiredHandler } from '../api/client.js';
 import {
   connectSocket,
   disconnectSocket,
@@ -31,6 +32,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     restoreSession();
+  }, []);
+
+  // When a silent token refresh fails, the API layer calls this to tear the
+  // session down: clearing `user` also closes the socket via the effect below.
+  useEffect(() => {
+    setSessionExpiredHandler(() => setUser(null));
+    return () => setSessionExpiredHandler(null);
   }, []);
 
   useEffect(() => {

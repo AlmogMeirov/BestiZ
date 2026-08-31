@@ -21,7 +21,13 @@ import {
 import {
   BadRequestError,
   NotFoundError,
+  UnauthorizedError,
 } from '../middleware/errorHandler.js';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from '../utils/tokens.js';
 import { config } from '../config/env.js';
 
 /**
@@ -90,6 +96,55 @@ export const login = async (req, res) => {
   const result = await authService.login(data);
   setAuthCookies(res, result);
   res.status(200).json({ user: result.user });
+};
+
+
+/**
+ * POST /api/auth/refresh
+ *
+ * Exchanges a valid refresh token for a fresh pair of tokens. The client calls
+ * this automatically when an API request fails with 401, so a user whose
+ * 15-minute access token expired stays logged in for the full 7-day refresh
+ * window instead of being silently kicked out.
+ *
+ * Rotation: every successful refresh issues a NEW refresh token, not just a new
+ * access token. That shortens the window in which a stolen refresh token is
+ * useful. Note that rotation alone can't *revoke* the old token — it stays
+ * valid until it expires, because verification here is stateless. Persisting
+ * issued refresh tokens in the database is the next step if real revocation
+ * (logout-everywhere, breach response) is needed.
+ *
+ * This endpoint deliberately does NOT use the `authenticate` middleware: that
+ * middleware reads the access token, which is exactly the thing that just expired.
+ */
+export const refresh = async (req, res) => {
+  const token = req.cookies?.[REFRESH_TOKEN_COOKIE];
+
+  if (!token) {
+    throw new UnauthorizedError('No refresh token provided');
+  }
+
+  let payload;
+  try {
+    payload = verifyRefreshToken(token);
+  } catch {
+    // Expired, malformed, signed with the access secret, or wrong `type` claim.
+    throw new UnauthorizedError('Invalid or expired refresh token');
+  }
+
+  // A token can outlive its user. Re-check that the account still exists before
+  // handing out a new session.
+  const user = await userRepository.findById(payload.sub);
+  if (!user) {
+    throw new UnauthorizedError('User no longer exists');
+  }
+
+  setAuthCookies(res, {
+    accessToken: generateAccessToken(user.id),
+    refreshToken: generateRefreshToken(user.id),
+  });
+
+  res.status(200).json({ user });
 };
 
 
