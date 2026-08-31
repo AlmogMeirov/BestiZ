@@ -6,6 +6,15 @@ BestiZ is a full-stack social networking application where users can connect wit
 
 The project focuses on clean backend architecture, relational database design, secure authentication, and real-time synchronization.
 
+
+---
+
+## Project Status
+
+This project is currently under active development.
+The repository contains the first functional version (MVP) of BestiZ.
+While the core functionality is implemented, additional features, security improvements, performance optimizations, and testing are planned for future releases.
+
 ---
 
 ## Table of Contents
@@ -69,13 +78,13 @@ The project focuses on clean backend architecture, relational database design, s
 ## Authentication
 
 ### Sign In
-![Sign In](./docs/screenshots/Signin.jpg)
+![Sign In](./docs/screenshots/Singin.jpg)
 
 ### Invalid Credentials
-![Invalid Credentials](./docs/screenshots/Signin_wrongPassword.jpg)
+![Invalid Credentials](./docs/screenshots/Singin_wrongPassword.jpg)
 
 ### Sign Up
-![Sign Up](./docs/screenshots/Signup.jpg)
+![Sign Up](./docs/screenshots/Singup.jpg)
 
 ---
 
@@ -213,7 +222,7 @@ BestiZ uses a broadcast + client-side filtering approach.
 
 The complete database documentation, including the full ERD diagram, schema explanation, constraints, indexes, and design decisions, is documented separately in:
 
-📄 [docs/DATABASE.md](./docs/DATABASE.md)
+📄 [docs/DATABASE.md](./docs/BestiZ_Database_Architecture.md)
 
 ---
 
