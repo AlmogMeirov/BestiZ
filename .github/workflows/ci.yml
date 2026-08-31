@@ -1,0 +1,73 @@
+# Continuous Integration for BestiZ.
+#
+# Runs on every push to main and on every pull request. Two independent jobs so
+# a backend failure and a frontend failure are reported separately instead of
+# one masking the other.
+#
+# The client job runs on Ubuntu, which is deliberate: the filesystem there is
+# case-sensitive, so an import like `./PostCard.module.css` that resolves fine
+# on Windows or macOS fails here. That class of bug is invisible locally and
+# breaks every real deployment, so the build is the thing that catches it.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel an in-progress run when a newer commit is pushed to the same branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  server:
+    name: Server tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      # `npm ci` installs the exact versions in the lockfile and fails if
+      # package.json and package-lock.json disagree. `npm install` would
+      # silently resolve to newer versions and make CI non-reproducible.
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Run tests
+        working-directory: server
+        run: npm test
+
+  client:
+    name: Client build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Build for production
+        working-directory: client
+        run: npm run build
