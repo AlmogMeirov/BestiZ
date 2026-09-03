@@ -133,7 +133,7 @@ const POSTS = [
   },
   {
     author: 'tal_r',
-    content: 'Sunrise over the Dead Sea this morning. Worth the 4am alarm.',
+    content: 'Bryggen in Bergen at dusk. Worth the early flight.',
     visibility: 'public',
     image_url:
       'https://images.unsplash.com/photo-1544085311-11a028465b03?w=800',
@@ -240,8 +240,8 @@ const seed = async () => {
     const userIds = {};
     for (const [index, user] of USERS.entries()) {
       const { rows } = await client.query(
-        `INSERT INTO users (username, email, password_hash, display_name, bio, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO users (username, email, password_hash, display_name, bio, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $6)
          RETURNING id`,
         [
           user.username,
@@ -259,8 +259,8 @@ const seed = async () => {
     console.log(`Inserting ${FRIENDSHIPS.length} friendships...`);
     for (const friendship of FRIENDSHIPS) {
       await client.query(
-        `INSERT INTO friendships (requester_id, addressee_id, status, created_at)
-         VALUES ($1, $2, $3, $4)`,
+        `INSERT INTO friendships (requester_id, addressee_id, status, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $4)`,
         [
           userIds[friendship.requester],
           userIds[friendship.addressee],
@@ -274,8 +274,11 @@ const seed = async () => {
     const postIds = [];
     for (const post of POSTS) {
       const { rows } = await client.query(
-        `INSERT INTO posts (author_id, content, image_url, visibility, created_at)
-         VALUES ($1, $2, $3, $4, $5)
+        // updated_at is set to the same value as created_at. Left to its
+        // DEFAULT NOW() it would land in the present while created_at sits in
+        // the past, and the UI marks a post as edited when the two differ.
+        `INSERT INTO posts (author_id, content, image_url, visibility, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $5)
          RETURNING id`,
         [
           userIds[post.author],
@@ -291,8 +294,8 @@ const seed = async () => {
     console.log(`Inserting ${COMMENTS.length} comments...`);
     for (const comment of COMMENTS) {
       await client.query(
-        `INSERT INTO comments (post_id, author_id, content, created_at)
-         VALUES ($1, $2, $3, $4)`,
+        `INSERT INTO comments (post_id, author_id, content, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $4)`,
         [
           postIds[comment.post],
           userIds[comment.author],
