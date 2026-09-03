@@ -9,8 +9,10 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import helmet from 'helmet';
 
 import { config } from './config/env.js';
+import { apiLimiter } from './middleware/rateLimiters.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -23,6 +25,18 @@ import {
 
 export const buildApp = () => {
   const app = express();
+
+  // Security headers. Registered first so every response carries them,
+  // including error responses and 404s.
+  app.use(
+    helmet({
+      // The API is consumed by a client on a different origin (Vite dev server
+      // in development, a separate static host in production). Helmet's default
+      // of `same-origin` would block those reads, so this is widened
+      // deliberately. Access is still controlled by the CORS policy below.
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  );
 
   // CORS: allow the client origin and credentials so httpOnly auth cookies work.
   app.use(
@@ -43,6 +57,11 @@ export const buildApp = () => {
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
+
+  // General rate limit across the whole API. The stricter budget for login and
+  // registration is applied inside authRoutes, closer to the endpoints it
+  // protects. Mounted after /health so uptime checks are never throttled.
+  app.use('/api', apiLimiter);
 
   // Feature routes.
   app.use('/api/auth', authRoutes);
