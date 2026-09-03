@@ -1,405 +1,404 @@
-# Mail Client - Exercise 4
+# BestiZ
 
-you can find our repository in the link: https://github.com/AlmogMeirov/Mail.git
+[![CI](https://github.com/AlmogMeirov/BestiZ/actions/workflows/ci.yml/badge.svg)](https://github.com/AlmogMeirov/BestiZ/actions/workflows/ci.yml)
 
-**This part implements a complete Gmail-like mail client system with a React frontend (Exercise 4), building upon the Node.js web server from Exercise 3 and the C++ blacklist server from Exercise 2.**
+A real-time social network built with React, Node.js, PostgreSQL, and Socket.IO.
 
-## Purpose
+BestiZ is a full-stack social networking application where users can connect with friends, create posts with privacy controls, comment in real time, and browse a personalized feed.
 
-In this part of the project, we developed a comprehensive *mail client system* that featuring a *modern React frontend* with Gmail-like interface. The server interacts with the Node.js *mail server* from exercise 3 to handle the server side and the C++ *blacklist server* from exercise 2 to verify links within mail content using a *TCP socket*.
-
-The system supports:
-
-* User registration and login with JWT authentication
-* Sending and receiving mails
-* A modern React frontend with Gmail-like interface
-* Advanced label management system with custom user labels
-* Dark mode theme support with complete UI adaptation
-* Enhanced spam detection with automatic URL blacklisting
-* Draft saving and editing capabilities
-* Multi-recipient support (To, CC, BCC)
-* Real-time search and filtering
-* Integration with the blacklist server (via TCP) to block mails with blacklisted URLs
-
-The system integrates three main components:
-
-* React Frontend - Modern Gmail-style user interface
-* Node.js Backend - RESTful API with JWT authentication and label management
-* C++ Blacklist Server - High-performance TCP server for URL validation
-
-## Build and Run Instructions
-
-### Prerequisites:
-
-* Docker
-* Docker Compose
-* Web browser
-
-
-### Step 1: Build & Start the Services
-#### Open terminal:
-
-  In the root project directory (*Mail* folder), run:
-
- ```
-  docker-compose up --build -d
- ```
-
-  This will build and start three services:
-
-* **client:** React frontend on port 3001
-* **mail-server**: A Node.js web server on port 3000
-* **blacklist-server:** A C++ TCP server on port 5555, connected to a persistent urls.txt file for blacklist storage
+The project focuses on clean backend architecture, relational database design, secure authentication, and real-time synchronization.
 
 ---
 
-### Step 2: Access the Application:
-  Open your web browser and navigate to:
+## Table of Contents
 
-  ```
-  http://localhost:3001
-  ```
-  
-  
-### Step 3: Registration & Authentication
-If you wish to log in with 2 different users, you must open **different browsers** (e.g., Chrome, Firefox) to simulate multiple users simultaneously, as mentioned in the PDF task file.
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
+- [Architecture Overview](#architecture-overview)
+- [API Endpoints](#api-endpoints)
+- [Real-Time Events](#real-time-events)
+- [Database](#database)
+- [Security](#security)
+- [Future Improvements](#future-improvements)
 
-**Development Data Storage**  
-As designed for this exercise, all data is stored **in-memory only** (no database required). Restarting mail-server will **reset all data** - perfect for testing and development. The frontend container can be restarted safely.
+---
 
-## Application Usage Guide
-  ###  Getting Started
-  When opening http://localhost:3001, you will be directed automatically to the *login* screen, as shown below. You probabely don't have a user yet if you just built and ran the project, so click on **Register here** for signing up:
-  
-  **Login Screen**   
-   
-![Login Screen](data/running_examples/login.png) 
+# Features
 
-  **Registration**
+## Authentication & Users
 
-Create a new account with email, password, and personal details. Mandatoty fields are marked with a star (*).
+• User registration with validation
+• Secure login with bcrypt-hashed passwords
+• JWT authentication with HTTP-only cookies
+• Silent token refresh with rotation, so a 15-minute access token never interrupts a session
+• Public user profiles with avatars and bios
 
-![Registration Screen](data/running_examples/register.png)
+## Friends System
 
-> **Registration Tip:** If registration fails due to server issues (e.g., email already exists, image file too large), error messages appear at the top of the registration form. **Scroll up** to view the error details.
+• Send, accept, reject, and cancel friend requests
+• Mutual unfriending
+• Database-enforced friendship uniqueness
+• Prevention of duplicate and reversed requests
 
-![Registration Failure Screen](data/running_examples/imageTooLarge.png)
+## Posts & Feed
 
-  **Signing In**
+• Create, edit, and delete posts
+• Public / friends-only / private visibility
+• Personalized feed ordered by recency
+• Cursor-based infinite scrolling
+• Feed filters: All / Mine / Friends
 
-After a successfull registration, toy will be directed to the login screen again. This time'you have an account in FooMail, so you can log in with your email address and password.
+## Comments
 
-You're all set! **Welcome to FooMail!**
+• Real-time comments
+• Edit and delete support
+• Live synchronization across connected clients
 
-![FooMail Inbox](data/running_examples/emptyInbox.png)
+## Real-Time Features
 
+• Live post updates
+• Live comment updates
+• Friendship status updates
+• Per-user Socket.IO rooms
 
-  ### Email Operations
-  **Composing Emails**
-1. Click the "Compose" button in the sidebar
-2. Fill in recipients (To, CC, BCC), subject, and content
-3. Send immediately or Save as Draft for later
-   
-   ![Compose](data/running_examples/compose.png)
-   > **Note:** Sending an email or saving as a draft will close the composing box, but you can also close the composing box by clicking the x button on the top right, or by clicking anywhere in the darked area outside the box.
-5. Once the email is sent, you can see it in the *sent* label.
-   
-   ![Sent](data/running_examples/sent.png)
-7. The recipient can see the mail in their *inbox*.
-   
-   ![Alice got an email from Bob](data/running_examples/inboxWithOneMail.png)
-9. By clicking on it, from either *sent label* or *inbox label*, you can read the full email, reply or send it forward.
-    
-   ![Reading an email](data/running_examples/MailViewPage.png)
-##
-   **Managing Labels**
-1. **Create Labels:**
-   - Use the "+" button in the Labels section
-   - Type the new label name in the small text box
-     
-     ![create label](data/running_examples/createLabel.png)
-   - When your'e done, click on the *Create Label* button or press *Enter*
-   - As long as the new label name is valid, the new label is shown now on the sidebar!
-   - If the new label name is invaild, the label will not be created   
-2. **Edit Labels:**
-   - Hover with your mouse on the label in the sidebar
-   - Click on the three dots button that appears nest to the label's name
-     
-     ![label edit](data/running_examples/labelHover.png)
-   - In the small menu that was just opened, choose weather you wnat to rename the label, or delete it.
-   - As long as the new label name is valid, the new label name is shown now on the sidebar!
-   - If the new label name is invaild, the label will not be renamed.  
-3. **Apply Labels:**
-   - Click the circled arrow button below the top bar to sync the inbox
-   - Hover with your mouse on the mail you want to tag
+---
 
-     ![Hover Mail](data/running_examples/mailHover.png)
-   - Click on the left button to open the labels list
-  
-      ![Labels list](data/running_examples/labelsList.png)
-   - Click on the chosen label. You can choose as many labels as you want.
-     > **Note:** You can tag your selected email as *Spam*. In this case, every URL address in the title and the content of this specific email will be added to the blacklist. from now on, any new email that contains these blacklisted URLs will be delivered directly to *Spam*.
-     > **Note:** The starred feature works like Gmail - clicking the star icon toggles the "Starred" label on emails. This creates a quick way to organize high-priority messages.
-5. **Filter by Label:**
-   - Click on label names in the sidebar
-   - You will see all the mails from this label and from this label only.
-   - 
-       ![Labels](data/running_examples/tagged.png)
-##
-  **Drafts**
-1. **Create a draft:**
-   - Open the composing box by either clicking on the "Compose" button in the sidebar, or the *Reply* or *Forward* buttons inside a specific mail.
-   - Fill in recipients (To, CC, BCC), and click on *Save Draft*.
-   
-   ![Compose](data/running_examples/compose.png)
-3. **Edit Draft:**
-   - Click on the *Drafts* label on the sidebar. You'll be directed to the drafts page.
-     
-    ![Drafts page](data/running_examples/draftPage.png)
-   - Click on the draft that you want to edit, and edit the chosen draft in the *draft editor*.
+# Screenshots
 
-     ![Draft Editor](data/running_examples/draftEditor.png)
-##
-  **Delete Mails**
-  1. Hover with your mouse on the mail you want to delete
+## Authentication
 
-     ![Hover Mail](data/running_examples/mailHover.png)
-  2. Click on the right button to move the mail to *Trash*
-  3. The deleted mail is still available in the *Trash* label. Click on *Trash* on the sodebar to see the deleted mails
+### Sign In
+![Sign In](./docs/screenshots/Signin.jpg)
 
-     ![Trash Label](data/running_examples/trashLabel.png)
-  4. To **permanently delete** emails, first move them to *Trash*, then hover over the email and click the x icon that appears.
+### Invalid Credentials
+![Invalid Credentials](./docs/screenshots/Signin_wrongPassword.jpg)
 
-     ![Delete Forever](data/running_examples/deleteForever.png)
-##
-  **Search Mails By Query**
-  1. Use the search bar in the top navigation
-  2. Enter keywords to search across all email content
-  3. Press *Enter* to seardh
-  4. The search results will be shown below.
+### Sign Up
+![Sign Up](./docs/screenshots/Signup.jpg)
 
-     ![Search](data/running_examples/search.png)
-##
-  **Theme Customization - Dark And Light Mode**
-  * Wherever you are on *Foomail*, click the 🌙/☀️ icon in the top bar to switch themes
+---
 
-    ![theme button](data/running_examples/hovermoon.png)
+## Feed & Posts
 
-    ![darked theme button](data/running_examples/hoversun.png)
-  * Your preference is automatically saved and persists across sessions
-  * All interface elements adapt to the selected theme
+### Personalized Feed
+![Feed](./docs/screenshots/feed.jpg)
 
-    ![dark mode](data/running_examples/darkmode1.png)
+### Real-Time Comments
+![Comments](./docs/screenshots/comment.jpg)
 
-    ![dark mode](data/running_examples/darkmode2.png)
+---
 
-    ![dark mode](data/running_examples/darkmode3.png)
+## Social Features
 
-    ![dark mode](data/running_examples/darkmode4.png)
-  * Only registered users can switch between themes, but if you log out when dark mode is activated - the registration screen ang login screen will be darked as well.
+### Friend Requests
+![Friend Requests](./docs/screenshots/friendrequest.jpg)
 
-    ![dark mode](data/running_examples/darkmode5.png)
+### User Search
+![User Search](./docs/screenshots/Search.jpg)
 
-    ![dark mode](data/running_examples/darkmode6.png)
-    
+---
 
-##  Implementation Notes
-### Advanced Label System
-* **System Labels:** Automatically created (Inbox, Sent, Drafts, etc.)
-* **Custom Labels:** User-created with full CRUD operations
-* **Multi-label Support:** Emails can have multiple labels simultaneously
-* **Label Inheritance:** Proper handling of system vs user labels
-* **Bulk Operations:** Apply/remove labels from multiple emails
+## User Profiles
 
-### Dark Mode Implementation
+### Profile Page
+![Profile](./docs/screenshots/profilepage.jpg)
 
-* **CSS Variables:** Centralized theming system
-* **Theme Persistence:** User preferences saved in localStorage
-* **Component Coverage:** All UI elements support both themes
-* **Smooth Transitions:** Animated theme switching
+---
 
-## Enhanced Email Features
+# Tech Stack
 
-* **Draft System:** Auto-save and manual save for incomplete emails
-* **Multi-recipient:** Full support for To & CC fields
-* **Rich Compose:** Gmail-like compose window with all features
-* **Advanced Search:** Search across all email fields
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, Vite, React Router, CSS Modules |
+| Backend | Node.js 20, Express 4 |
+| Database | PostgreSQL 16 |
+| Real-Time | Socket.IO 4 |
+| Authentication | JWT + HTTP-only cookies + bcrypt |
+| Validation | Zod |
+| Security | Helmet, express-rate-limit |
+| Testing | Vitest, Supertest |
+| CI | GitHub Actions |
+| Containerization | Docker + Docker Compose |
 
-### Spam Protection Enhancement
+---
 
-* **Real-time Detection:** URLs checked during email sending
-* **Automatic Labeling:** Spam emails automatically tagged
-* **TCP Integration:** High-performance C++ server for URL validation
-### Miscellaneous
-* The C++ server uses a Bloom Filter to quickly check for URL membership
-* All communication between the web client and the web server, as well as the web server and C++ blacklist, server happens over TCP
-* Data is kept *in memory* in the web server (no database is used)
+# Quick Start
 
-  ---
+## Prerequisites
 
+• Docker and Docker Compose installed
+• Ports `5173`, `4000`, and `5432` available
 
-## Docker Notes
+## Setup
 
-  * *Blacklist server* expects the file data/urls.txt to exist or will create it
-  * Ports used:
-    *Client: 3001
-    * Node server: 3000 (internal communication only)
-    * C++ server: 5555 (internal communication only)
-  * Containers communicate using Docker’s internal network (via container name)
+```bash
+# Clone the repository
+git clone https://github.com/AlmogMeirov/BestiZ.git
 
-  To stop the services:
+# Enter the project directory
+cd BestiZ
 
-  ```bash
-  docker-compose down
-  ```
+# Create environment variables
+cp .env.example .env
 
+# Start the application
+docker compose up
+```
 
-##  Project Structure
+The PostgreSQL schema initializes automatically on first startup.
 
-MAIL/
-├── .vscode/                         → VSCode workspace settings
+## Seed demo data
 
-├── data/                            → Shared data (e.g., urls.txt used by the C++ server)
+The app starts with an empty database. To populate it with a small social graph —
+six users, ten friendships, twelve posts across all three visibility levels, and
+comment threads:
 
+```bash
+docker compose exec server npm run seed
+```
+
+Then sign in as any of `almog`, `maya_l`, `noam_dev`, `tal_r`, `yael_k`, or
+`idan_s`, all with the password `Password1!`.
+
+Signing in as `almog` and then as `yael_k` is the quickest way to see the
+visibility rules at work: `yael_k` has no friends, so every friends-only post
+disappears from her feed.
+
+The seed script is destructive — it truncates every table before inserting, and
+refuses to run when `NODE_ENV=production`.
+
+## Access
+
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:4000 |
+| PostgreSQL | localhost:5432 |
+
+## Stop Services
+
+```bash
+docker compose down
+```
+
+Remove all data:
+
+```bash
+docker compose down -v
+```
+
+---
+
+# Testing
+
+```bash
+cd server
+npm install
+npm test
+```
+
+The suite runs in about two seconds and needs no database. Unit tests cover pure
+logic; the integration tests drive the real Express app through Supertest with
+only the repository layer mocked, so routing, cookie parsing, middleware, and the
+error handler all execute for real.
+
+| Suite | Covers |
+|---|---|
+| `tests/unit/tokens.test.js` | Token signing, expiry, and the separation between access and refresh tokens |
+| `tests/unit/authValidators.test.js` | Registration and login schema rules |
+| `tests/integration/authRefresh.test.js` | The refresh endpoint: every rejection path, rotation, and cookie flags |
+| `tests/integration/security.test.js` | Helmet response headers and both rate limiters |
+
+GitHub Actions runs the suite and a production client build on every push and
+pull request. The client build runs on Ubuntu deliberately: its filesystem is
+case-sensitive, which catches import-casing bugs that pass silently on Windows
+and macOS and break every deployment.
+
+---
+
+# Project Structure
+
+```plaintext
+BestiZ/
+├── .github/workflows/    # CI pipeline
+├── client/
 ├── server/
+│   ├── src/
+│   └── tests/            # Unit and integration tests
+├── docs/
+├── docker-compose.yml
+├── .env.example
+└── README.md
+```
+
+---
+
+# Architecture Overview
+
+## Backend Architecture
+
+The backend follows a layered architecture:
+
+```plaintext
+Routes
+    ↓
+Validators
+    ↓
+Controllers
+    ↓
+Services
+    ↓
+Repositories
+    ↓
+PostgreSQL
+```
 
-│   └── controllers/
+## Real-Time Architecture
 
-│       └── mailController.js        → Legacy controller (can be migrated under src/)
+BestiZ uses a broadcast + client-side filtering approach.
 
-client/
+> Note: For a production-scale system with stricter security requirements, visibility filtering should ideally happen on the server before broadcasting events.
 
-├── public/                     # Static assets
+---
+
+# API Endpoints
 
-├── src/
+All endpoints are prefixed with `/api`. Authenticated routes read the access
+token from an HTTP-only cookie.
+
+## Authentication
 
-│   ├── components/            # Reusable UI components
-
-│   │   ├── Layout.jsx         # Main app layout
-
-│   │   ├── Sidebar.jsx        # Navigation sidebar
-
-│   │   ├── Topbar.jsx         # Header with search
-
-│   │   ├── SendMailComponent.jsx  # Compose box
-
-│   │   └── ThemeToggle.jsx    # Dark mode toggle
-
-│   ├── pages/                 # Page components
-
-│   │   ├── Login.jsx          # Authentication
-
-│   │   ├── Register.jsx       # User registration
-
-│   │   ├── LabelPage.jsx      # Email list view
-
-│   │   ├── MailViewPage.jsx   # Individual email view
-
-│   │   └── SearchResultsPage.jsx  # Search results
-
-│   ├── context/               # React Context providers
-
-│   │   ├── SearchContext.js   # Global search state
-
-│   │   └── SendMailContext.jsx  # Compose modal state
-
-│   ├── theme/                 # Theme system
-
-│   │   └── ThemeProvider.jsx  # Dark mode provider
-
-│   ├── styles/                # CSS styling
-
-│   │   ├── theme.css          # CSS variables for theming
-
-│   │   ├── Login.css          # Authentication styles
-
-│   │   └── MailViewPage.css   # Email view styles
-
-│   └── utils/                 # Utility functions
-
-│       ├── api.js             # API communication
-
-│       └── waitForServer.js   # Server readiness check
-
-├── src/
-
-│   ├── cpp_server/                  → C++ TCP blacklist server
-
-│   │   ├── BloomFilter.cpp/.h       → Bloom filter implementation
-
-│   │   ├── Hash*.h                  → Hash function variants
-
-│   │   ├── InfiniteCommandLoop.cpp  → Main server loop
-
-│   │   ├── URL*.cpp/.h              → URL checker, storage, and utility logic
-
-│   │   ├── tcp_client.py            → Python client for testing
-
-│   │   ├── CMakeLists.txt           → Build configuration for C++ components
-
-│   │   └── dockerfile               → Docker config for C++ server
-
-│   └── node_server/                → Node.js web server
-
-│       ├── controllers/            → Logic for routes (e.g., auth, mails)
-
-│       ├── middlewares/           → Token authentication (JWT)
-
-│       ├── models/                 → In-memory storage for users and mails
-
-│       ├── routes/                 → Express route definitions
-
-│       ├── uploads/                → Uploaded user profile images
-
-│       ├── utils/                  → Utility functions (e.g., crypto)
-
-│       ├── app.js                  → Express app setup
-
-│       ├── curl/                   → CURL test scripts (optional)
-
-│       ├── dockerfile              → Docker config for Node.js server
-
-│       ├── index.js                → Main entry point (runs the server)
-
-│       ├── package.json            → Project metadata and dependencies
-
-│       └── package-lock.json
-
-├── docker-compose.yml             → Compose file to orchestrate both services
-
-├── dockerfile                     → (Possibly legacy) Dockerfile
-
-├── CMakeLists.txt                 → Top-level CMake (links into src/cpp_server)
-
-├── package.json                   → (Legacy or root Node metadata)
-
-├── package-lock.json
-
-└── README.md                      → Project documentation
-
-
-## Team
-
-  * Almog Meirov
-  * Tomer Grady
-  * Meir Crown
-
-
-
-## Technologies Used
-  * *React 19.1.0* 
-  * *React Router 7.6.2*
-  * *React Icons 5.5.0*
-  * *CSS Variables*
-  * *Node.js + Express*
-  * *C++17 (multi-threaded)*
-  * *Docker + Docker Compose*
-  * *JWT Authentication*
-  * *Bloom Filter* for blacklist
-  * *TCP Socket Communication*
-
-## FooMail - Advanced Mail Client System
-*A modern, feature-rich email client with React frontend*
-Version: 4.0
-
-# Enjoy!!
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/auth/register` | — | Create an account |
+| POST | `/auth/login` | — | Sign in and receive auth cookies |
+| POST | `/auth/refresh` | Refresh cookie | Exchange a refresh token for a new token pair |
+| POST | `/auth/logout` | — | Clear auth cookies |
+| GET | `/auth/me` | Yes | Current user |
+
+## Users
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/users/search` | Yes | Search users by username |
+| GET | `/users/:userId` | Yes | Public profile |
+| PATCH | `/users/me` | Yes | Update own profile |
+
+## Friends
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/friends/requests` | Yes | Send a friend request |
+| GET | `/friends/requests/incoming` | Yes | Requests awaiting your decision |
+| GET | `/friends/requests/outgoing` | Yes | Requests you have sent |
+| POST | `/friends/requests/:id/accept` | Yes | Accept a request |
+| DELETE | `/friends/requests/:id` | Yes | Reject, cancel, or unfriend |
+| GET | `/friends` | Yes | Friends list |
+
+## Posts
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/posts/feed` | Yes | Personalized feed, cursor-paginated |
+| GET | `/posts/users/:userId` | Yes | Posts by a specific user |
+| POST | `/posts` | Yes | Create a post |
+| GET | `/posts/:postId` | Yes | Single post |
+| PUT | `/posts/:postId` | Yes | Edit own post |
+| DELETE | `/posts/:postId` | Yes | Delete own post |
+
+## Comments
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/posts/:postId/comments` | Yes | Comments on a post |
+| POST | `/posts/:postId/comments` | Yes | Add a comment |
+| PUT | `/comments/:commentId` | Yes | Edit own comment |
+| DELETE | `/comments/:commentId` | Yes | Delete own comment |
+
+---
+
+# Real-Time Events
+
+Socket.IO authenticates during the handshake using the same access-token cookie
+as the REST API. Each user joins a private room keyed by their user id, which is
+how targeted events reach one person rather than everyone.
+
+| Event | Emitted when |
+|---|---|
+| `post:created` | A post is published |
+| `post:updated` | A post is edited |
+| `post:deleted` | A post is removed |
+| `comment:created` | A comment is added |
+| `comment:updated` | A comment is edited |
+| `comment:deleted` | A comment is removed |
+| `friend:request_received` | Someone sends you a friend request |
+| `friend:request_accepted` | Your request is accepted |
+| `friend:removed` | A friendship or pending request is deleted |
+
+---
+
+# Database
+
+The complete database documentation, including the full ERD diagram, schema explanation, constraints, indexes, and design decisions, is documented separately in:
+
+📄 [docs/DATABASE.md](./docs/BestiZ_Database_Architecture.md)
+
+---
+
+# Security
+
+**Password Storage**
+Passwords are hashed with bcrypt before storage.
+
+**Session Management**
+Access tokens live 15 minutes; refresh tokens live 7 days. Both are stored in
+HTTP-only cookies with `SameSite=Lax`, so JavaScript cannot read them. Each token
+type is signed with its own secret and carries a `type` claim, so a leaked access
+token cannot be replayed against the refresh endpoint.
+
+**Token Refresh & Rotation**
+When a request returns 401 the client calls `/api/auth/refresh` once and replays
+the original request. Concurrent failures share a single in-flight refresh rather
+than firing several in parallel. Every successful refresh issues a new refresh
+token, which shortens the window in which a stolen one is useful.
+
+> Rotation is not revocation. The previous refresh token stays valid until it
+> expires, because verification is stateless. Persisting issued tokens in the
+> database would be the next step if logout-everywhere or breach response were
+> required.
+
+**Security Headers**
+Helmet sets CSP, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`,
+and HSTS, and removes the `X-Powered-By` header. `Cross-Origin-Resource-Policy`
+is widened to `cross-origin` because the client is served from a different
+origin; access is narrowed again by the CORS policy.
+
+**Rate Limiting**
+Login and registration allow 10 failed attempts per 15 minutes per IP, which
+makes online password guessing impractical while costing real users nothing.
+Successful sign-ins do not count against the budget. The rest of the API has a
+wider budget. `/api/auth/refresh` is deliberately excluded from the strict
+budget, since every active user's browser calls it on a timer they do not
+control. Counters are held in memory, which suits a single instance; several
+instances would need a shared store.
+
+**SQL Injection Protection**
+All SQL queries use parameterized statements through the `pg` driver, with input
+validation at the route boundary as a second layer.
+
+---
+
+# Future Improvements
+
+• Private messaging UI — the `messages` table exists in the schema but has no
+  feature built on it yet
+• Server-side visibility filtering before broadcasting real-time events
+• Database-backed refresh token revocation
+• Notifications system
+• PostgreSQL full-text search
+• User blocking
+• Image uploads (posts currently accept an image URL)
