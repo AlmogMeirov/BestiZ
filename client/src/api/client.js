@@ -24,7 +24,34 @@
 
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+/**
+ * Where API requests are sent.
+ *
+ * In production the Express server serves this built client itself, so the
+ * page and the API share one origin and an empty base is correct: every
+ * request goes to the host the page was loaded from, whatever that host turns
+ * out to be. Hardcoding a URL here would also trip the server's Content
+ * Security Policy, whose `connect-src 'self'` only permits calls back to the
+ * page's own origin.
+ *
+ * In development the Vite dev server runs on port 5173 while the API runs on
+ * 4000, so an explicit base is required. `import.meta.env.DEV` is true only
+ * under `vite dev` and false in any build, which is exactly the distinction
+ * needed.
+ *
+ * `||` rather than `??`: docker-compose passes VITE_API_BASE_URL through even
+ * when it is unset, which arrives as an empty string rather than undefined.
+ * `??` would accept that empty string and leave development pointing at the
+ * Vite dev server, which serves no API.
+ *
+ * `undefined` rather than an empty string for the production case: axios
+ * treats both as "no base", but the socket client shares this pattern and
+ * socket.io-client mishandles an empty string while handling undefined
+ * correctly.
+ */
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? 'http://localhost:4000' : undefined);
 
 export const apiClient = axios.create({
   baseURL,

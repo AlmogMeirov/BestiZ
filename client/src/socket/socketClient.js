@@ -9,8 +9,19 @@
 
 import { io as createSocket } from 'socket.io-client';
 
-// Same env var as the axios client; one source of truth for the API URL.
-const SOCKET_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+/**
+ * Same env var as the axios client; one source of truth for the API URL.
+ *
+ * In production the API server serves this client, so the socket belongs on
+ * the page's own origin. `undefined` is what socket.io-client reads as "use
+ * the current origin" — an empty string is not, it produces a malformed URL.
+ *
+ * In development the Vite dev server and the API are on different ports, so
+ * the socket connects to the API directly rather than through Vite.
+ */
+const SOCKET_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? 'http://localhost:4000' : undefined);
 
 let socket = null;
 
