@@ -6,6 +6,9 @@
  * without starting an HTTP server.
  */
 
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -23,18 +26,36 @@ import {
   commentsRouter,
 } from './routes/commentRoutes.js';
 
+// Absolute path to the built client, resolved relative to this file so it
+// works regardless of the directory the process was started from.
+const CLIENT_DIST = join(dirname(fileURLToPath(import.meta.url)), '../../client/dist');
+
 export const buildApp = () => {
   const app = express();
+
+  // How many reverse proxies sit in front of us. Behind a platform proxy this
+  // has to be set, or express-rate-limit counts every user under the proxy's
+  // single IP and one busy visitor locks out everyone else.
+  app.set('trust proxy', config.trustProxy);
 
   // Security headers. Registered first so every response carries them,
   // including error responses and 404s.
   app.use(
     helmet({
-      // The API is consumed by a client on a different origin (Vite dev server
-      // in development, a separate static host in production). Helmet's default
-      // of `same-origin` would block those reads, so this is widened
-      // deliberately. Access is still controlled by the CORS policy below.
+      // In development the client runs on the Vite dev server at another
+      // origin, so `same-origin` (helmet's default) would block its reads.
       crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          // Posts carry image URLs pointing at arbitrary hosts, so the default
+          // `img-src 'self' data:` would break every post with a picture.
+          'img-src': ["'self'", 'data:', 'https:'],
+          // The client opens a Socket.IO connection; without this the default
+          // `connect-src 'self'` blocks the websocket in a same-origin deploy.
+          'connect-src': ["'self'", 'ws:', 'wss:'],
+        },
+      },
     })
   );
 
@@ -72,6 +93,20 @@ export const buildApp = () => {
   // Comments by id (PUT/DELETE /api/comments/:commentId).
   app.use('/api/comments', commentsRouter);
   app.use('/api', friendRoutes);
+
+  // In a single-origin deployment this process also serves the built client.
+  // Registered AFTER the API routes so nothing here can shadow them.
+  if (config.serveClient) {
+    app.use(express.static(CLIENT_DIST));
+
+    // Client-side routing: any non-API path that didn't match a file is a
+    // React Router route, so hand back index.html and let the browser resolve
+    // it. /api is excluded explicitly — an unknown API path must return a JSON
+    // 404, not an HTML page that the client would fail to parse.
+    app.get(/^(?!\/api).*/, (req, res) => {
+      res.sendFile(join(CLIENT_DIST, 'index.html'));
+    });
+  }
 
   // Error handler must be registered LAST, after all routes.
   app.use(errorHandler);

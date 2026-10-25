@@ -11,15 +11,15 @@ import { config } from './env.js';
 const { Pool } = pg;
 
 export const pool = new Pool({
-  host: config.database.host,
-  port: config.database.port,
-  user: config.database.user,
-  password: config.database.password,
-  database: config.database.database,
+  // Spread whichever shape config resolved: either a single connectionString
+  // (managed provider) or the five discrete fields (local docker-compose).
+  ...config.database,
   // Reasonable defaults for a small app; would be tuned in production.
   max: 20,
   idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 5_000,
+  // Managed Postgres that scales to zero needs longer than a local container
+  // to answer the first connection after an idle period.
+  connectionTimeoutMillis: config.database.connectionString ? 15_000 : 5_000,
 });
 
 // Surface unexpected pool errors instead of letting them silently kill connections.

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "seed": "node src/db/seed.js"
+    "seed": "node src/db/seed.js",
+    "migrate": "node src/db/migrate.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
