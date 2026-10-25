@@ -2,6 +2,9 @@
 
 [![CI](https://github.com/AlmogMeirov/BestiZ/actions/workflows/ci.yml/badge.svg)](https://github.com/AlmogMeirov/BestiZ/actions/workflows/ci.yml)
 
+**[Live demo](https://bestiz.onrender.com)** ·
+> Hosted on a free instance that sleeps after 15 minutes of inactivity. The first request may take up to a minute to wake it.
+
 A real-time social network built with React, Node.js, PostgreSQL, and Socket.IO.
 
 BestiZ is a full-stack social networking application where users can connect with friends, create posts with privacy controls, comment in real time, and browse a personalized feed.
