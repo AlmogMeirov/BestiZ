@@ -14,12 +14,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import * as friendsApi from '../../api/friendsApi.js';
+import { useMessenger } from '../../contexts/MessengerContext.jsx';
 import Button from '../../components/Button/Button.jsx';
 
 import styles from './FriendRequestsPage.module.css';
 // The main component for the Friend Requests page. It manages state for incoming and outgoing requests,
 // handles loading and error states, and defines actions for accepting, rejecting, or canceling requests.
 const FriendRequestsPage = () => {
+  const { refreshMessenger } = useMessenger();
+
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,12 +49,22 @@ const FriendRequestsPage = () => {
     loadRequests();
   }, [loadRequests]);
 
+  /**
+   * Accepting a friend request also settles any pending message request
+   * between the two, server-side. The messenger panel floats over this page
+   * rather than belonging to it, so it has to be told: the conversation has
+   * just moved out of its Requests tab and into Chats, and the badge with it.
+   *
+   * The event that carries this to the other person never reaches whoever
+   * clicked, so this is that person's only way to find out.
+   */
   const runAction = async (apiCall) => {
     setActionInFlight(true);
     setError('');
     try {
       await apiCall();
       await loadRequests();
+      await refreshMessenger();
     } catch (err) {
       setError(err?.response?.data?.error || 'Action failed');
     } finally {

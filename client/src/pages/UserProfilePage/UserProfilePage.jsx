@@ -56,7 +56,7 @@ const formatJoinedDate = (isoString) => {
 const UserProfilePage = () => {
   const { userId } = useParams();
   const { user: currentUser, setUser } = useAuth();
-  const { openMessenger, refreshThread } = useMessenger();
+  const { openMessenger, refreshMessenger } = useMessenger();
 
   const [profileUser, setProfileUser] = useState(null);
   const [friends, setFriends] = useState([]);
@@ -280,6 +280,10 @@ const UserProfilePage = () => {
    * case, but unfriending changes it too: it drops the pair back to a single
    * permitted message.
    *
+   * The whole panel, not just the thread: becoming friends settles a pending
+   * message request server-side, which moves that conversation out of the
+   * Requests tab and into Chats and changes the badge with it.
+   *
    * Scoped to `userId`, so an open thread with someone else is left alone.
    */
   const runAction = async (apiCall) => {
@@ -288,7 +292,7 @@ const UserProfilePage = () => {
     try {
       await apiCall();
       await loadAll();
-      await refreshThread(userId);
+      await refreshMessenger(userId);
     } catch (err) {
       setError(err?.response?.data?.error || 'Action failed');
     } finally {

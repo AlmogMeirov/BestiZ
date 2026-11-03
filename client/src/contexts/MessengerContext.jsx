@@ -147,6 +147,26 @@ export const MessengerProvider = ({ children }) => {
     }
   }, []);
 
+  /**
+   * Re-reads everything the panel shows.
+   *
+   * Used after a change that moves a conversation between the two tabs rather
+   * than changing anything inside it. Becoming friends is the case that forced
+   * this: the server settles the pending message request, so the conversation
+   * stops being a request and becomes an ordinary chat — the lists, the badge
+   * and the open thread all describe it differently afterwards, and refreshing
+   * only one of them would leave the panel disagreeing with itself.
+   */
+  const refreshMessenger = useCallback(
+    async (onlyForPartnerId) =>
+      Promise.all([
+        refreshCounts(),
+        refreshLists(),
+        refreshThread(onlyForPartnerId),
+      ]),
+    [refreshCounts, refreshLists, refreshThread]
+  );
+
   const openMessenger = useCallback(
     (partner) => {
       setIsOpen(true);
@@ -310,18 +330,47 @@ export const MessengerProvider = ({ children }) => {
       refreshLists();
     };
 
+    /**
+     * Becoming friends settles a pending message request server-side, so the
+     * conversation moves out of Requests and into Chats and the badge changes
+     * with it. Both people agreed to the friendship, so nothing is revealed by
+     * reacting to it at once.
+     *
+     * Only whoever did NOT click gets this event; the one who did refreshes
+     * from their own page, because their own action produces no event for
+     * them.
+     *
+     * `friend:removed` is deliberately NOT handled here, even though it also
+     * changes what this panel may show. That event is sent both when someone
+     * unfriends you and when someone blocks you, and its ambiguity is the
+     * whole point — a blocked user who cannot tell a block from ordinary
+     * silence has nothing to route around. Refreshing the thread on it would
+     * resolve that ambiguity instantly and passively: an unfriend leaves the
+     * composer open with a note that the next message goes as a request, a
+     * block closes it outright. Reading the two apart would take one glance.
+     *
+     * So the panel stays as it was and finds out the ordinary way, when a send
+     * is refused. Leaving the composer open after an unfriend costs nothing
+     * either, since the one message it allows is genuinely allowed.
+     */
+    const onFriendshipChanged = () => {
+      refreshMessenger();
+    };
+
     socket.on(SOCKET_EVENTS.MESSAGE_RECEIVED, onMessage);
     socket.on(SOCKET_EVENTS.MESSAGE_READ, onMessageRead);
     socket.on(SOCKET_EVENTS.MESSAGE_REQUEST_RECEIVED, onRequest);
     socket.on(SOCKET_EVENTS.MESSAGE_REQUEST_ACCEPTED, onRequestAccepted);
+    socket.on(SOCKET_EVENTS.FRIEND_REQUEST_ACCEPTED, onFriendshipChanged);
 
     return () => {
       socket.off(SOCKET_EVENTS.MESSAGE_RECEIVED, onMessage);
       socket.off(SOCKET_EVENTS.MESSAGE_READ, onMessageRead);
       socket.off(SOCKET_EVENTS.MESSAGE_REQUEST_RECEIVED, onRequest);
       socket.off(SOCKET_EVENTS.MESSAGE_REQUEST_ACCEPTED, onRequestAccepted);
+      socket.off(SOCKET_EVENTS.FRIEND_REQUEST_ACCEPTED, onFriendshipChanged);
     };
-  }, [isAuthenticated, refreshCounts, refreshLists]);
+  }, [isAuthenticated, refreshCounts, refreshLists, refreshMessenger]);
 
   const value = {
     isOpen,
@@ -344,6 +393,7 @@ export const MessengerProvider = ({ children }) => {
     openConversation,
     closeConversation,
     refreshThread,
+    refreshMessenger,
     send,
     accept,
     decline,

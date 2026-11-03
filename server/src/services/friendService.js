@@ -5,9 +5,11 @@
  * requests, and removed friendships without refreshing.
  */
 
+import { withTransaction } from '../config/database.js';
 import * as friendRepository from '../repositories/friendRepository.js';
 import * as userRepository from '../repositories/userRepository.js';
 import * as blockRepository from '../repositories/blockRepository.js';
+import * as messageRequestRepository from '../repositories/messageRequestRepository.js';
 import {
   emitFriendRequestReceived,
   emitFriendRequestAccepted,
@@ -79,8 +81,38 @@ export const acceptRequest = async ({ friendshipId, currentUserId }) => {
   if (friendship.status !== 'pending') {
     throw new BadRequestError('This request is no longer pending');
   }
-  // Update the request to accepted.
-  const updated = await friendRepository.acceptRequest(friendshipId);
+  /**
+   * Accepting the friendship also settles any message request between the
+   * two, in one transaction.
+   *
+   * The two states would otherwise contradict each other: friends may message
+   * freely, so `resolveSendState` returns `open` and ignores the request row —
+   * but the row is still 'pending', which is what keeps the conversation out
+   * of the inbox and parked in the recipient's Requests tab, asking for a
+   * decision that has already been overtaken.
+   *
+   * One transaction because a friendship without the cleanup is exactly the
+   * inconsistent state being fixed.
+   */
+  const updated = await withTransaction(async (client) => {
+    const accepted = await friendRepository.acceptRequest(friendshipId, client);
+
+    // The status was checked above, but between that read and this write
+    // someone else may have accepted or withdrawn the request. The UPDATE is
+    // guarded by `status = 'pending'` and returns nothing when it loses that
+    // race. Throwing here rolls the transaction back, so the message request
+    // is not deleted on the strength of a friendship that was never created.
+    if (!accepted) {
+      throw new BadRequestError('This request is no longer pending');
+    }
+
+    await messageRequestRepository.deletePendingBetween(
+      friendship.requester_id,
+      friendship.addressee_id,
+      client
+    );
+    return accepted;
+  });
 
   // Notify the original requester that their request was accepted.
   const acceptor = await userRepository.findById(currentUserId);

@@ -73,8 +73,8 @@ export const createRequest = async ({ requesterId, addresseeId }) => {
 
  // Marks a pending friendship as accepted. Returns the updated row.
  // Only changes rows that are still pending.
-export const acceptRequest = async (id) => {
-  const result = await pool.query(
+export const acceptRequest = async (id, client = pool) => {
+  const result = await client.query(
     `UPDATE friendships
      SET status = 'accepted'
      WHERE id = $1 AND status = 'pending'

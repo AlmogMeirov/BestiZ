@@ -35,6 +35,7 @@ vi.mock('../../src/repositories/messageRequestRepository.js', () => ({
   findById: vi.fn(),
   create: vi.fn(),
   setStatus: vi.fn(),
+  deletePendingBetween: vi.fn(),
   findPendingForRecipient: vi.fn(),
   countPendingForRecipient: vi.fn(),
 }));

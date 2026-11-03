@@ -76,6 +76,42 @@ export const setStatus = async (id, status, client = pool) => {
 };
 
 /**
+ * Removes an undecided request between two people, in either direction.
+ *
+ * Called when they become friends. A friendship is a broader permission than
+ * the one the request was asking for, so leaving the row behind would strand
+ * the conversation in the recipient's Requests tab waiting on a decision that
+ * no longer means anything.
+ *
+ * Deleting rather than accepting is deliberate, and the difference only shows
+ * up if the friendship later ends: with no row left, the pair fall back to the
+ * ordinary one-message rule, exactly like any other two strangers with
+ * history. Marking it accepted would instead leave a standing permission that
+ * outlived the friendship, so two former friends would be treated differently
+ * depending on whether one of them happened to message the other before they
+ * were friends.
+ *
+ * Scoped to 'pending' on purpose. An 'accepted' row is a grant the recipient
+ * made deliberately and independently of any friendship, and is not the
+ * friendship's to revoke; a 'declined' row is a refusal that equally stands on
+ * its own.
+ *
+ * Returns the deleted row, or undefined when there was nothing to delete,
+ * which is the ordinary case.
+ */
+export const deletePendingBetween = async (userIdA, userIdB, client = pool) => {
+  const result = await client.query(
+    `DELETE FROM message_requests
+     WHERE status = 'pending'
+       AND ((requester_id = $1 AND recipient_id = $2)
+         OR (requester_id = $2 AND recipient_id = $1))
+     RETURNING id, requester_id, recipient_id, status, created_at, updated_at`,
+    [userIdA, userIdB]
+  );
+  return result.rows[0];
+};
+
+/**
  * Requests waiting on this user's decision, each with the profile of whoever
  * sent it and a preview of their opening message.
  *
