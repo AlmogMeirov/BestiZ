@@ -25,7 +25,7 @@ import CreatePost from '../../components/CreatePost/CreatePost.jsx';
 import FilterTabs from '../../components/FilterTabs/FilterTabs.jsx';
 import PostsList from '../../components/PostsList/PostsList.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
-import { getSocket } from '../../socket/socketClient.js';
+import { connectSocket } from '../../socket/socketClient.js';
 import { SOCKET_EVENTS } from '../../socket/socketEvents.js';
 
 import styles from './FeedPage.module.css';
@@ -153,7 +153,25 @@ const FeedPage = () => {
   }, [posts, hasMore, loading, loadingMore, filter]);
 
   useEffect(() => {
-    const socket = getSocket();
+    /**
+     * `connectSocket` rather than `getSocket`, because of effect ordering.
+     *
+     * AuthProvider opens the connection in its own effect, and effects run
+     * child-first: anything below it asks for the socket on the render where the
+     * session is restored, before the effect that creates it has run, and gets
+     * null. A subscription skipped that way is never retried and says nothing.
+     *
+     * This page recovered from that by accident: `friendIds` is in the dependency
+     * list, it is replaced with a fresh Set once the friends request returns, and
+     * the re-run landed after the socket existed. Real-time updates therefore
+     * depended on an unrelated HTTP request succeeding — one failed
+     * `GET /api/friends`, a rate-limit 429 among them, left this page silently
+     * unsubscribed for the whole session.
+     *
+     * connectSocket is idempotent — it returns the live socket when there is one.
+     * Asking for the connection beats hoping it has already been made.
+     */
+    const socket = connectSocket();
     if (!socket || !currentUser) return undefined;
 
     const handleCreated = ({ post }) => {
@@ -202,7 +220,7 @@ const FeedPage = () => {
   }, [currentUser, friendIds, filter]);
 
   useEffect(() => {
-    const socket = getSocket();
+    const socket = connectSocket();
     if (!socket || !currentUser) return undefined;
 
     const refresh = () => {

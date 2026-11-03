@@ -25,7 +25,7 @@ import * as postsApi from '../../api/postsApi.js';
 import * as blocksApi from '../../api/blocksApi.js';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useMessenger } from '../../contexts/MessengerContext.jsx';
-import { getSocket } from '../../socket/socketClient.js';
+import { connectSocket } from '../../socket/socketClient.js';
 import { SOCKET_EVENTS } from '../../socket/socketEvents.js';
 import Avatar from '../../components/Avatar/Avatar.jsx';
 import Button from '../../components/Button/Button.jsx';
@@ -180,7 +180,23 @@ const UserProfilePage = () => {
 
   // Real-time post events scoped to THIS profile's user.
   useEffect(() => {
-    const socket = getSocket();
+    /**
+     * `connectSocket` rather than `getSocket`, because of effect ordering.
+     *
+     * AuthProvider opens the connection in its own effect, and effects run
+     * child-first: anything below it asks for the socket on the render where the
+     * session is restored, before the effect that creates it has run, and gets
+     * null. A subscription skipped that way is never retried and says nothing.
+     *
+     * This page recovered from that by accident, the same way the feed did:
+     * `friends` is in the dependency list and is replaced once the friends
+     * request returns. That makes real-time updates here conditional on an
+     * unrelated request succeeding, which is not a property worth keeping.
+     *
+     * connectSocket is idempotent — it returns the live socket when there is one.
+     * Asking for the connection beats hoping it has already been made.
+     */
+    const socket = connectSocket();
     if (!socket || !currentUser) return undefined;
     // For new posts, we only add them if they're by this user and visible to the current viewer.
     const handleCreated = ({ post }) => {
@@ -232,7 +248,7 @@ const UserProfilePage = () => {
   }, [currentUser, userId, friends]);
 
   useEffect(() => {
-    const socket = getSocket();
+    const socket = connectSocket();
     if (!socket || !currentUser) return undefined;
 
     const refresh = () => {

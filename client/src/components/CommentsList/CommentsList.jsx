@@ -13,7 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import * as commentsApi from '../../api/commentsApi.js';
 import { useAuth } from '../../contexts/AuthContext.jsx';
-import { getSocket } from '../../socket/socketClient.js';
+import { connectSocket } from '../../socket/socketClient.js';
 import { SOCKET_EVENTS } from '../../socket/socketEvents.js';
 import Button from '../Button/Button.jsx';
 import Comment from '../Comment/Comment.jsx';
@@ -62,7 +62,23 @@ const CommentsList = ({ postId, postAuthorId, onCountChange }) => {
   // Subscribe to real-time comment events. Only events for THIS post are applied.
   // events for other posts are ignored (each PostCard has its own CommentsList that handles its own events).
   useEffect(() => {
-    const socket = getSocket();
+    /**
+     * `connectSocket` rather than `getSocket`, because of effect ordering.
+     *
+     * AuthProvider opens the connection in its own effect, and effects run
+     * child-first: anything below it asks for the socket on the render where the
+     * session is restored, before the effect that creates it has run, and gets
+     * null. A subscription skipped that way is never retried and says nothing.
+     *
+     * This component had no such accident to rely on — its dependencies are
+     * stable. It was safe only because it mounts behind a click, long after the
+     * socket exists. That is a fact about the UI, not about this code, and it
+     * would stop being true the moment comments were expanded by default.
+     *
+     * connectSocket is idempotent — it returns the live socket when there is one.
+     * Asking for the connection beats hoping it has already been made.
+     */
+    const socket = connectSocket();
     if (!socket || !currentUser) return undefined;
 
     const handleCreated = ({ comment }) => {

@@ -69,7 +69,15 @@ export const disconnectSocket = () => {
 };
 
 
- // Returns the active socket, or null if not connected.
- // Components/hooks use this to register their own event listeners.
-
-export const getSocket = () => socket;
+/**
+ * There is deliberately no `getSocket()` here.
+ *
+ * It used to exist, and every caller had the same bug: it returns null before
+ * AuthProvider's effect has opened the connection, and since effects run
+ * child-first, that is exactly the render in which a page below it asks. The
+ * subscription was skipped silently and never retried.
+ *
+ * `connectSocket()` is the accessor: it is idempotent, so a caller that only
+ * wants the existing socket gets it, and a caller that is early gets a working
+ * one instead of null. Nothing needs a function that can answer "not yet".
+ */
