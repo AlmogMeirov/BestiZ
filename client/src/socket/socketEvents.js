@@ -18,4 +18,9 @@ export const SOCKET_EVENTS = {
   FRIEND_REQUEST_RECEIVED: 'friend:request_received',
   FRIEND_REQUEST_ACCEPTED: 'friend:request_accepted',
   FRIEND_REMOVED: 'friend:removed',
+
+  MESSAGE_RECEIVED: 'message:received',
+  MESSAGE_READ: 'message:read',
+  MESSAGE_REQUEST_RECEIVED: 'message:request_received',
+  MESSAGE_REQUEST_ACCEPTED: 'message:request_accepted',
 };

@@ -1,0 +1,469 @@
+/*
+ * Messenger panel.
+ *
+ * Shared by the four components in this folder. They are parts of one panel
+ * rather than pieces reused elsewhere, and keeping their layout in one file is
+ * what stops the header, the list and the composer drifting out of alignment.
+ */
+
+.panel {
+  position: fixed;
+  right: 24px;
+  bottom: 0;
+  z-index: 50;
+
+  display: flex;
+  flex-direction: column;
+  width: 360px;
+  /* Tall enough to hold a conversation, short enough to leave the page
+     readable behind it. */
+  height: min(520px, calc(100vh - 96px));
+
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+/* On a phone the panel takes the screen: a 360px window inside a 390px
+   viewport is a worse experience than a full one. */
+@media (max-width: 480px) {
+  .panel {
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.panelTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  /* Pushes the close button to the far edge, and truncates a long name
+     instead of shoving the button off the panel. */
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.iconButton:hover {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tabActive {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.tabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+
+  background-color: var(--color-primary);
+  border-radius: 9px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.panelBody {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty {
+  padding: 24px 20px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Lists */
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.row:hover {
+  background-color: var(--color-bg);
+}
+
+.rowBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* Lets the preview truncate instead of stretching the row. */
+  min-width: 0;
+  flex: 1;
+}
+
+.rowTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rowName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowTime {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.rowPreview {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowPreviewUnread {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.rowNote {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.rowBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  flex-shrink: 0;
+
+  background-color: var(--color-primary);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Requests */
+
+.requestRow {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.requestMain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px 6px;
+
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.requestMain:hover {
+  background-color: var(--color-bg);
+}
+
+.requestActions {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px 10px 64px;
+}
+
+.acceptButton,
+.declineButton {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.acceptButton {
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  color: #fff;
+}
+
+.acceptButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.declineButton {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-error);
+}
+
+.declineButton:hover:not(:disabled) {
+  background-color: var(--color-bg);
+}
+
+.acceptButton:disabled,
+.declineButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Thread */
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bubbleRow {
+  display: flex;
+}
+
+.bubbleRowMine {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 78%;
+  padding: 8px 11px;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.bubbleMine {
+  background-color: var(--color-primary);
+}
+
+.bubbleText {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text);
+  /* Long words and pasted links must wrap rather than widen the bubble. */
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.bubbleMine .bubbleText {
+  color: #fff;
+}
+
+.bubbleMeta {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.bubbleMine .bubbleMeta {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Composer and notices */
+
+.threadNotice {
+  padding: 10px 14px;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  flex-shrink: 0;
+}
+
+.threadNoticeText {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+.threadNotice .requestActions {
+  padding: 0;
+}
+
+.threadClosed {
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.composer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.composerHint {
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.composerError {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--color-error);
+}
+
+.composerRow {
+  display: flex;
+  gap: 8px;
+}
+
+.composerInput {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 11px;
+
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.composerInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.composerInput:disabled {
+  opacity: 0.6;
+}
+
+.sendButton {
+  flex-shrink: 0;
+  padding: 8px 16px;
+
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.sendButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
