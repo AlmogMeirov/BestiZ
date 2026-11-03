@@ -6,6 +6,8 @@
 
 import { z } from 'zod';
 
+import { requiredString } from './requiredString.js';
+
 /**
  * Body schema for POST /api/posts.
  * - content: required, 1-5000 chars (matches DB CHECK constraint).
@@ -13,8 +15,7 @@ import { z } from 'zod';
  * - visibility: one of the enum values, defaults to 'public'.
  */
 export const createPostSchema = z.object({
-  content: z
-    .string({ required_error: 'Content is required' })
+  content: requiredString('Content is required')
     .trim()
     .min(1, 'Content cannot be empty')
     .max(5000, 'Content cannot exceed 5000 characters'),
@@ -77,16 +78,14 @@ export const updatePostSchema = z
 
  // URL params schema for /api/posts/:postId.
 export const postIdParamsSchema = z.object({
-  postId: z
-    .string({ required_error: 'postId is required' })
+  postId: requiredString('postId is required')
     .uuid('postId must be a valid UUID'),
 });
 
 
  // URL params schema for /api/posts/users/:userId.
 export const userIdParamsSchema = z.object({
-  userId: z
-    .string({ required_error: 'userId is required' })
+  userId: requiredString('userId is required')
     .uuid('userId must be a valid UUID'),
 });
 

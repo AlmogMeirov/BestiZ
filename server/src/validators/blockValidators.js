@@ -4,16 +4,16 @@
 
 import { z } from 'zod';
 
+import { requiredString } from './requiredString.js';
+
 // Body schema for POST /api/blocks.
 export const blockUserSchema = z.object({
-  userId: z
-    .string({ required_error: 'userId is required' })
+  userId: requiredString('userId is required')
     .uuid('userId must be a valid UUID'),
 });
 
 // URL params schema for DELETE /api/blocks/:userId.
 export const blockParamsSchema = z.object({
-  userId: z
-    .string({ required_error: 'userId is required' })
+  userId: requiredString('userId is required')
     .uuid('userId must be a valid UUID'),
 });

@@ -4,6 +4,8 @@
 
 import { z } from 'zod';
 
+import { requiredString } from './requiredString.js';
+
 /**
  * Body schema for POST /api/messages.
  *
@@ -13,12 +15,10 @@ import { z } from 'zod';
  * Postgres and coming back as a constraint violation.
  */
 export const sendMessageSchema = z.object({
-  recipientId: z
-    .string({ required_error: 'recipientId is required' })
+  recipientId: requiredString('recipientId is required')
     .uuid('recipientId must be a valid UUID'),
 
-  content: z
-    .string({ required_error: 'Content is required' })
+  content: requiredString('Content is required')
     .trim()
     .min(1, 'Content cannot be empty')
     .max(2000, 'Content cannot exceed 2000 characters'),
@@ -29,8 +29,7 @@ export const sendMessageSchema = z.object({
  * conversation.
  */
 export const conversationParamsSchema = z.object({
-  userId: z
-    .string({ required_error: 'userId is required' })
+  userId: requiredString('userId is required')
     .uuid('userId must be a valid UUID'),
 });
 
@@ -57,7 +56,6 @@ export const conversationQuerySchema = z.object({
  * .../decline.
  */
 export const requestIdParamsSchema = z.object({
-  requestId: z
-    .string({ required_error: 'requestId is required' })
+  requestId: requiredString('requestId is required')
     .uuid('requestId must be a valid UUID'),
 });

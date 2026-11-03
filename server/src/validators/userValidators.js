@@ -4,15 +4,15 @@
 
 import { z } from 'zod';
 
+import { requiredString } from './requiredString.js';
+
 export const userIdParamsSchema = z.object({
-  userId: z
-    .string({ required_error: 'userId is required' })
+  userId: requiredString('userId is required')
     .uuid('userId must be a valid UUID'),
 });
 
 export const searchUsersSchema = z.object({
-  q: z
-    .string({ required_error: 'Search query is required' })
+  q: requiredString('Search query is required')
     .trim()
     .min(1, 'Search query cannot be empty')
     .max(50, 'Search query is too long'),
