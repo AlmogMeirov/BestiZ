@@ -18,6 +18,7 @@ import FeedPage from './pages/FeedPage/FeedPage.jsx';
 import UserProfilePage from './pages/UserProfilePage/UserProfilePage.jsx';
 import FriendsPage from './pages/FriendsPage/FriendsPage.jsx';
 import FriendRequestsPage from './pages/FriendRequestsPage/FriendRequestsPage.jsx';
+import BlockedUsersPage from './pages/BlockedUsersPage/BlockedUsersPage.jsx';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route path="/users/:userId" element={<UserProfilePage />} />
         <Route path="/friends" element={<FriendsPage />} />
         <Route path="/friends/requests" element={<FriendRequestsPage />} />
+        <Route path="/blocked" element={<BlockedUsersPage />} />
       </Route>
 
       {/* Catch-all: send to /feed (ProtectedRoute will bounce to login if needed). */}

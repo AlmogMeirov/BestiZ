@@ -10,15 +10,21 @@
  *  - Real-time: events update the visible post list (filtered to this profile's user and constrained by visibility).
  *  - Pagination: cursor-based infinite scroll using IntersectionObserver.
  *  - Friendship refresh: socket events for friendship changes trigger a full reload so the action buttons stay correct.
+ *
+ * This page is also where a conversation STARTS. The messenger only lists
+ * threads that already exist, so without a Message button here there would be
+ * no way to write to someone for the first time.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import * as usersApi from '../../api/usersApi.js';
 import * as friendsApi from '../../api/friendsApi.js';
 import * as postsApi from '../../api/postsApi.js';
+import * as blocksApi from '../../api/blocksApi.js';
 import { useAuth } from '../../contexts/AuthContext.jsx';
+import { useMessenger } from '../../contexts/MessengerContext.jsx';
 import { getSocket } from '../../socket/socketClient.js';
 import { SOCKET_EVENTS } from '../../socket/socketEvents.js';
 import Avatar from '../../components/Avatar/Avatar.jsx';
@@ -50,9 +56,11 @@ const formatJoinedDate = (isoString) => {
 const UserProfilePage = () => {
   const { userId } = useParams();
   const { user: currentUser, setUser } = useAuth();
+  const { openMessenger } = useMessenger();
 
   const [profileUser, setProfileUser] = useState(null);
   const [friends, setFriends] = useState([]);
+  const [blocked, setBlocked] = useState([]);
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -68,34 +76,54 @@ const UserProfilePage = () => {
   const isOwnProfile = currentUser?.id === userId;
   const friendIds = new Set(friends.map((f) => f.id));
 
+  /**
+   * Whether the viewer has blocked THIS person.
+   *
+   * Only one direction is knowable: the API never reveals who has blocked the
+   * viewer, so a profile that has blocked them looks like any other — minus
+   * the posts, which the server withholds.
+   */
+  const isBlockedByMe = blocked.some((b) => b.id === userId);
+
   const loadAll = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
       if (isOwnProfile) {
-        const [userData, postsData, friendsData] = await Promise.all([
-          usersApi.getUserById(userId),
-          postsApi.getPostsByUser(userId, { limit: PAGE_SIZE }),
-          friendsApi.getFriends(),
-        ]);
+        const [userData, postsData, friendsData, blockedData] =
+          await Promise.all([
+            usersApi.getUserById(userId),
+            postsApi.getPostsByUser(userId, { limit: PAGE_SIZE }),
+            friendsApi.getFriends(),
+            blocksApi.getBlocked(),
+          ]);
         setProfileUser(userData);
         setPosts(postsData);
         setFriends(friendsData);
+        setBlocked(blockedData);
         setHasMore(postsData.length === PAGE_SIZE);
       } else {
-        const [userData, friendsData, incomingData, outgoingData, postsData] =
-          await Promise.all([
-            usersApi.getUserById(userId),
-            friendsApi.getFriends(),
-            friendsApi.getIncomingRequests(),
-            friendsApi.getOutgoingRequests(),
-            postsApi.getPostsByUser(userId, { limit: PAGE_SIZE }),
-          ]);
+        const [
+          userData,
+          friendsData,
+          incomingData,
+          outgoingData,
+          postsData,
+          blockedData,
+        ] = await Promise.all([
+          usersApi.getUserById(userId),
+          friendsApi.getFriends(),
+          friendsApi.getIncomingRequests(),
+          friendsApi.getOutgoingRequests(),
+          postsApi.getPostsByUser(userId, { limit: PAGE_SIZE }),
+          blocksApi.getBlocked(),
+        ]);
         setProfileUser(userData);
         setFriends(friendsData);
         setIncoming(incomingData);
         setOutgoing(outgoingData);
         setPosts(postsData);
+        setBlocked(blockedData);
         setHasMore(postsData.length === PAGE_SIZE);
       }
     } catch (err) {
@@ -254,6 +282,31 @@ const UserProfilePage = () => {
     }
     runAction(() => friendsApi.deleteFriendship(friendRecord.friendship_id));
   };
+
+  /**
+   * Blocking is spelled out before it happens, because it does more than the
+   * word suggests: it ends the friendship and hides both people's posts from
+   * each other. A one-word button with that much behind it deserves a
+   * confirmation that says so.
+   */
+  const handleBlock = () => {
+    if (
+      !window.confirm(
+        `Block ${profileUser.display_name}?\n\n` +
+          'You will not see each other\u2019s posts, neither of you can message ' +
+          'the other, and any friendship between you is removed. Your message ' +
+          'history is kept.'
+      )
+    ) {
+      return;
+    }
+    runAction(() => blocksApi.blockUser(userId));
+  };
+
+  // Unblocking deliberately does not restore the friendship. Saying so here
+  // stops it reading as an undo.
+  const handleUnblock = () =>
+    runAction(() => blocksApi.unblockUser(userId));
 // Optimistically remove a post from the list, then call the API to delete it.
 // If the API call fails, restore the post and show an error.
   const handleDeletePost = async (postId) => {
@@ -338,12 +391,42 @@ const UserProfilePage = () => {
 
         <div className={styles.identityActions}>
           {isOwnProfile && (
-            <Button variant="secondary" onClick={() => setEditOpen(true)}>
-              Edit profile
+            <>
+              <Button variant="secondary" onClick={() => setEditOpen(true)}>
+                Edit profile
+              </Button>
+              <Link to="/blocked" className={styles.secondaryLink}>
+                Blocked users
+              </Link>
+            </>
+          )}
+
+          {/* A blocked profile shows one action and nothing else. Every other
+              button would be refused by the server, so offering them would
+              only invite a dead end. */}
+          {!isOwnProfile && isBlockedByMe && (
+            <>
+              <span className={styles.statusBadge}>Blocked</span>
+              <Button
+                variant="secondary"
+                onClick={handleUnblock}
+                loading={actionInFlight}
+              >
+                Unblock
+              </Button>
+            </>
+          )}
+
+          {!isOwnProfile && !isBlockedByMe && (
+            <Button
+              variant="secondary"
+              onClick={() => openMessenger(profileUser)}
+            >
+              Message
             </Button>
           )}
 
-          {!isOwnProfile && friendRecord && (
+          {!isOwnProfile && !isBlockedByMe && friendRecord && (
             <>
               <span className={styles.statusBadge}>You&apos;re friends</span>
               <Button
@@ -356,7 +439,7 @@ const UserProfilePage = () => {
             </>
           )}
 
-          {!isOwnProfile && incomingRequest && (
+          {!isOwnProfile && !isBlockedByMe && incomingRequest && (
             <>
               <Button onClick={handleAcceptRequest} loading={actionInFlight}>
                 Accept request
@@ -371,7 +454,7 @@ const UserProfilePage = () => {
             </>
           )}
 
-          {!isOwnProfile && outgoingRequest && (
+          {!isOwnProfile && !isBlockedByMe && outgoingRequest && (
             <Button
               variant="secondary"
               onClick={handleCancelRequest}
@@ -382,6 +465,7 @@ const UserProfilePage = () => {
           )}
 
           {!isOwnProfile &&
+            !isBlockedByMe &&
             !friendRecord &&
             !incomingRequest &&
             !outgoingRequest && (
@@ -389,6 +473,16 @@ const UserProfilePage = () => {
                 Add friend
               </Button>
             )}
+
+          {!isOwnProfile && !isBlockedByMe && (
+            <Button
+              variant="danger"
+              onClick={handleBlock}
+              disabled={actionInFlight}
+            >
+              Block
+            </Button>
+          )}
         </div>
 
         {error && <div className={styles.alert}>{error}</div>}

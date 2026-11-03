@@ -49,6 +49,9 @@ export const MessengerProvider = ({ children }) => {
   const [activePartner, setActivePartner] = useState(null);
   const [thread, setThread] = useState(null);
   const [threadLoading, setThreadLoading] = useState(false);
+  // The API's reason a thread could not be opened, shown instead of a generic
+  // failure message.
+  const [threadError, setThreadError] = useState('');
 
   /**
    * The open partner's id, mirrored into a ref.
@@ -93,12 +96,14 @@ export const MessengerProvider = ({ children }) => {
     async (partner) => {
       setActivePartner(partner);
       setThreadLoading(true);
+      setThreadError('');
       try {
         const data = await messagesApi.getConversation(partner.id);
         setThread(data);
         await Promise.all([refreshCounts(), refreshLists()]);
-      } catch {
+      } catch (error) {
         setThread(null);
+        setThreadError(error?.response?.data?.error ?? '');
       } finally {
         setThreadLoading(false);
       }
@@ -109,6 +114,7 @@ export const MessengerProvider = ({ children }) => {
   const closeConversation = useCallback(() => {
     setActivePartner(null);
     setThread(null);
+    setThreadError('');
   }, []);
 
   const openMessenger = useCallback(
@@ -290,6 +296,7 @@ export const MessengerProvider = ({ children }) => {
     activePartner,
     thread,
     threadLoading,
+    threadError,
     openMessenger,
     toggleMessenger,
     closeMessenger,

@@ -214,3 +214,28 @@
     margin: 16px 20px 0 20px;
   }
 }
+/*
+ * A link styled as a secondary button.
+ *
+ * "Blocked users" navigates, so it is an anchor rather than a <button> — but
+ * it sits in a row of buttons and has to match them, which the shared Button
+ * component cannot do for something that is semantically a link.
+ */
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 16px;
+
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.secondaryLink:hover {
+  background-color: var(--color-bg);
+}

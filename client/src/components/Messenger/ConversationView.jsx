@@ -20,6 +20,7 @@ const ConversationView = () => {
   const {
     thread,
     threadLoading,
+    threadError,
     activePartner,
     send,
     accept,
@@ -48,7 +49,13 @@ const ConversationView = () => {
   }
 
   if (!thread) {
-    return <p className={styles.empty}>Could not load this conversation.</p>;
+    // The server's own wording, when there is one. A bare "could not load"
+    // sends the reader hunting for a problem the API already named.
+    return (
+      <p className={styles.empty}>
+        {threadError || 'Could not load this conversation.'}
+      </p>
+    );
   }
 
   const handleSubmit = async (event) => {
