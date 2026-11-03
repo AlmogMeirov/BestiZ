@@ -56,7 +56,7 @@ const formatJoinedDate = (isoString) => {
 const UserProfilePage = () => {
   const { userId } = useParams();
   const { user: currentUser, setUser } = useAuth();
-  const { openMessenger } = useMessenger();
+  const { openMessenger, refreshThread } = useMessenger();
 
   const [profileUser, setProfileUser] = useState(null);
   const [friends, setFriends] = useState([]);
@@ -253,13 +253,26 @@ const UserProfilePage = () => {
   const friendRecord = friends.find((f) => f.id === userId);
   const incomingRequest = incoming.find((r) => r.requester_id === userId);
   const outgoingRequest = outgoing.find((r) => r.addressee_id === userId);
-// Helper to run a friendship-related action, showing loading state and handling errors.
+  /**
+   * Runs a relationship action, then reloads the page and re-syncs the
+   * messenger.
+   *
+   * Every action here can change who may write to whom, and the messenger
+   * panel floats over this page rather than being part of it — so a thread
+   * with this person open beside the profile would otherwise keep showing a
+   * composer the server has just stopped honouring. Blocking is the obvious
+   * case, but unfriending changes it too: it drops the pair back to a single
+   * permitted message.
+   *
+   * Scoped to `userId`, so an open thread with someone else is left alone.
+   */
   const runAction = async (apiCall) => {
     setActionInFlight(true);
     setError('');
     try {
       await apiCall();
       await loadAll();
+      await refreshThread(userId);
     } catch (err) {
       setError(err?.response?.data?.error || 'Action failed');
     } finally {

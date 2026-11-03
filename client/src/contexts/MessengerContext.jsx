@@ -117,6 +117,36 @@ export const MessengerProvider = ({ children }) => {
     setThreadError('');
   }, []);
 
+  /**
+   * Re-reads the open thread from the server.
+   *
+   * `sendState` is server truth, and an open window holds a copy of it that
+   * can quietly stop being true: the viewer blocks the other person from the
+   * profile behind the panel, the other person blocks THEM (deliberately
+   * silent — an event would give the blocker away), or a request is declined
+   * from a second tab. None of those reach this window on their own.
+   *
+   * Reads `activePartnerRef` rather than `activePartner` so the identity of
+   * this callback does not change with every thread, which keeps the socket
+   * effect that depends on it from re-subscribing.
+   *
+   * `onlyForPartnerId` narrows it to one person: a profile action against
+   * Maya should not re-read an open thread with Noam, which is unrelated.
+   */
+  const refreshThread = useCallback(async (onlyForPartnerId) => {
+    const partnerId = activePartnerRef.current;
+    if (!partnerId) return;
+    if (onlyForPartnerId && onlyForPartnerId !== partnerId) return;
+
+    try {
+      setThread(await messagesApi.getConversation(partnerId));
+      setThreadError('');
+    } catch (error) {
+      setThread(null);
+      setThreadError(error?.response?.data?.error ?? '');
+    }
+  }, []);
+
   const openMessenger = useCallback(
     (partner) => {
       setIsOpen(true);
@@ -139,12 +169,23 @@ export const MessengerProvider = ({ children }) => {
 
   const send = useCallback(
     async (content) => {
-      if (!activePartner) return;
+      if (!activePartner) return undefined;
 
-      const message = await messagesApi.sendMessage({
-        recipientId: activePartner.id,
-        content,
-      });
+      let message;
+      try {
+        message = await messagesApi.sendMessage({
+          recipientId: activePartner.id,
+          content,
+        });
+      } catch (error) {
+        // A refused send is the proof that this window's `sendState` is out of
+        // date, whatever made it so. Re-reading corrects the window for every
+        // cause at once, which is worth more than handling each one: the
+        // causes that cannot be detected any other way are exactly the ones
+        // the server will not announce.
+        await refreshThread();
+        throw error;
+      }
 
       // Appended rather than re-fetched: the response already contains the
       // stored message, and the composer should clear the instant it lands.
@@ -163,7 +204,7 @@ export const MessengerProvider = ({ children }) => {
       refreshLists();
       return message;
     },
-    [activePartner, thread, refreshLists]
+    [activePartner, thread, refreshLists, refreshThread]
   );
 
   const accept = useCallback(
@@ -302,6 +343,7 @@ export const MessengerProvider = ({ children }) => {
     closeMessenger,
     openConversation,
     closeConversation,
+    refreshThread,
     send,
     accept,
     decline,
