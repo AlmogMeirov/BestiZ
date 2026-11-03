@@ -152,7 +152,9 @@ cp .env.example .env
 docker compose up
 ```
 
-The PostgreSQL schema initializes automatically on first startup.
+The server runs the pending migrations before it starts serving, so the schema
+is built on first startup and kept current on every later one. The same runner
+builds the deployed database, which is what keeps the two from drifting apart.
 
 ## Seed demo data
 

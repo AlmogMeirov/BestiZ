@@ -1,11 +1,10 @@
 /**
  * Migration runner.
  *
- * Locally, docker-compose mounts the migrations directory into
- * /docker-entrypoint-initdb.d, and Postgres applies it automatically the first
- * time the container's data volume is created. Managed providers have no such
- * hook: you point the app at an empty database and nothing runs. This script
- * fills that gap.
+ * The only thing that builds a BestiZ schema, locally and in production alike.
+ * docker-compose runs it from the server's start command; a managed provider
+ * has it run as part of the deploy. One mechanism, so the two databases cannot
+ * drift apart.
  *
  * Run with:  npm run migrate
  *

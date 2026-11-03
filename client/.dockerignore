@@ -18,4 +18,4 @@ build
 
 # Don't copy local environment files
 .env
-.env.localss
+.env.local

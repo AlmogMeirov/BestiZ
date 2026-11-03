@@ -5,7 +5,10 @@
 services:
 
   # PostgreSQL database
-  # The schema is auto-applied on first startup via the init script mount.
+  #
+  # Deliberately starts empty. The schema is applied by the server's migration
+  # runner, which is the same path the deployed database takes — see the
+  # `command` on the server service below.
   postgres:
     image: postgres:16-alpine
     container_name: bestiz_postgres
@@ -19,8 +22,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      # Files in /docker-entrypoint-initdb.d run automatically on first init only.
-      - ./server/src/db/migrations:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -37,6 +38,25 @@ services:
       target: development
     container_name: bestiz_server
     restart: unless-stopped
+    # Migrate, then serve.
+    #
+    # This used to be done by mounting the migrations directory into Postgres'
+    # /docker-entrypoint-initdb.d, which runs every .sql file once, when the
+    # data volume is first created. That left the local database and the
+    # deployed one being built by two different mechanisms: the deployed one
+    # has no such hook and is built by `npm run migrate`, which records what it
+    # has applied in `schema_migrations`.
+    #
+    # The two agreed only by coincidence. Locally the ledger stayed empty, so
+    # the first migration added after the volume existed would have been
+    # applied to the deployed database and silently skipped here — and the
+    # divergence would surface as a confusing runtime error rather than as a
+    # failed migration.
+    #
+    # `depends_on: service_healthy` means Postgres is already accepting
+    # connections by this point. A failed migration exits the container instead
+    # of serving against a schema that is not what the code expects.
+    command: sh -c "npm run migrate && npm run dev"
     environment:
       NODE_ENV: ${NODE_ENV}
       SERVER_PORT: ${SERVER_PORT}
