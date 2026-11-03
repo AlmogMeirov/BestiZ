@@ -83,6 +83,14 @@ export const searchByUsername = async ({ query, currentUserId, limit = 10 }) => 
      FROM users
      WHERE id <> $1
        AND (username ILIKE $2 OR display_name ILIKE $2)
+       -- Blocked users are not findable, in either direction. Leaving them in
+       -- search would hand a blocked user a route straight to the profile and
+       -- message box the block exists to close.
+       AND NOT EXISTS (
+         SELECT 1 FROM blocks b
+         WHERE (b.blocker_id = $1 AND b.blocked_id = users.id)
+            OR (b.blocker_id = users.id AND b.blocked_id = $1)
+       )
      ORDER BY username ASC
      LIMIT $3`,
     [currentUserId, pattern, limit]

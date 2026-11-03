@@ -214,6 +214,59 @@ const COMMENTS = [
   { post: 11, author: 'noam_dev', content: 'Controversial but correct.', age: 4 * DAY },
 ];
 
+/**
+ * Direct message conversations.
+ *
+ * Chosen to put every state of the messaging rules on screen at once:
+ *
+ *  - almog ↔ maya_l and almog ↔ tal_r are friends, so they message freely and
+ *    have no request row at all.
+ *  - idan_s is NOT almog's friend, but his request was accepted — so they have
+ *    an open conversation. This is the case that shows approval and friendship
+ *    are separate things.
+ *  - yael_k is a stranger whose opening message is still pending, so it sits
+ *    in almog's Requests list rather than his inbox, with Accept and Decline
+ *    waiting.
+ *
+ * `request` says what message_requests row the pair needs: omitted for
+ * friends, 'accepted' or 'pending' otherwise. The requester is always the
+ * first person to appear in the thread.
+ */
+const CONVERSATIONS = [
+  {
+    between: ['almog', 'maya_l'],
+    messages: [
+      { from: 'maya_l', content: 'did the refresh thing end up working?', age: 3 * HOUR },
+      { from: 'almog', content: 'yeah, shipped it. one shared promise so five parallel 401s only trigger one refresh', age: 2 * HOUR + 40 * MINUTE },
+      { from: 'maya_l', content: 'nice. rotation too?', age: 2 * HOUR + 20 * MINUTE },
+      { from: 'almog', content: 'rotation yes, revocation no — that needs the tokens in the db. wrote it down as the next step', age: 2 * HOUR },
+    ],
+  },
+  {
+    between: ['almog', 'tal_r'],
+    messages: [
+      { from: 'almog', content: 'that bergen photo is unreal', age: 7 * HOUR },
+      { from: 'tal_r', content: 'thanks! golden hour did most of the work', age: 6 * HOUR + 30 * MINUTE },
+    ],
+  },
+  {
+    between: ['almog', 'idan_s'],
+    request: 'accepted',
+    messages: [
+      { from: 'idan_s', content: 'saw your CI post — are you running the client build on ubuntu on purpose?', age: 2 * DAY },
+      { from: 'almog', content: 'on purpose. case-sensitive filesystem catches import casing bugs that pass on windows', age: 2 * DAY - 30 * MINUTE },
+      { from: 'idan_s', content: 'smart. stealing that', age: 2 * DAY - 50 * MINUTE },
+    ],
+  },
+  {
+    between: ['almog', 'yael_k'],
+    request: 'pending',
+    messages: [
+      { from: 'yael_k', content: 'hi! building something similar for a course project — mind if I ask how you modelled friendships?', age: 25 * MINUTE },
+    ],
+  },
+];
+
 const seed = async () => {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('Refusing to seed: NODE_ENV is production.');
@@ -228,7 +281,7 @@ const seed = async () => {
     // here since every primary key is a generated UUID.
     console.log('Clearing existing data...');
     await client.query(
-      'TRUNCATE users, friendships, posts, comments, messages RESTART IDENTITY CASCADE'
+      'TRUNCATE users, friendships, posts, comments, messages, message_requests RESTART IDENTITY CASCADE'
     );
 
     // One hash reused for every account: bcrypt at cost 12 takes roughly a
@@ -305,6 +358,55 @@ const seed = async () => {
       );
     }
 
+    const messageCount = CONVERSATIONS.reduce(
+      (total, conversation) => total + conversation.messages.length,
+      0
+    );
+    console.log(
+      `Inserting ${messageCount} messages across ${CONVERSATIONS.length} conversations...`
+    );
+    for (const conversation of CONVERSATIONS) {
+      const [personA, personB] = conversation.between;
+
+      // The request row comes first: a message from a stranger only exists
+      // because a request was opened, and seeding them the other way round
+      // would briefly describe a state the app itself cannot produce.
+      if (conversation.request) {
+        // Whoever speaks first is the one who opened the conversation.
+        const requester = conversation.messages[0].from;
+        const recipient = requester === personA ? personB : personA;
+        await client.query(
+          `INSERT INTO message_requests (requester_id, recipient_id, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $4)`,
+          [
+            userIds[requester],
+            userIds[recipient],
+            conversation.request,
+            ago(conversation.messages[0].age),
+          ]
+        );
+      }
+
+      for (const message of conversation.messages) {
+        const sender = message.from;
+        const recipient = sender === personA ? personB : personA;
+        // Everything the seeded user RECEIVED is left unread, so the unread
+        // badge has something to show. Their own sent messages are marked read
+        // because "read" only ever describes the recipient's side.
+        await client.query(
+          `INSERT INTO messages (sender_id, recipient_id, content, read, created_at)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [
+            userIds[sender],
+            userIds[recipient],
+            message.content,
+            message.read ?? false,
+            ago(message.age),
+          ]
+        );
+      }
+    }
+
     await client.query('COMMIT');
 
     const visibilityCounts = POSTS.reduce((acc, post) => {
@@ -322,9 +424,17 @@ const seed = async () => {
         .map(([key, count]) => `${count} ${key}`)
         .join(', ')}`
     );
+    console.log(
+      `  ${messageCount} messages across ${CONVERSATIONS.length} conversations`
+    );
     console.log(`\n  Log in as any username below. Password: ${PASSWORD}`);
     console.log(`  ${USERS.map((u) => u.username).join(', ')}`);
-    console.log('\n  almog has 2 pending friend requests waiting.\n');
+    console.log('\n  almog has 2 pending friend requests waiting,');
+    console.log('  plus 1 message request from yael_k awaiting a decision.');
+    console.log(
+      '  almog and idan_s are NOT friends but have an accepted message request,'
+    );
+    console.log('  which is what shows that the two things are separate.\n');
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;

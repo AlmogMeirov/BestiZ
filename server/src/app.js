@@ -21,6 +21,8 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import friendRoutes from './routes/friendRoutes.js';
 import postRoutes from './routes/postRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
+import blockRoutes from './routes/blockRoutes.js';
 import {
   postCommentsRouter,
   commentsRouter,
@@ -88,6 +90,8 @@ export const buildApp = () => {
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/posts', postRoutes);
+  app.use('/api/messages', messageRoutes);
+  app.use('/api/blocks', blockRoutes);
   // Comments under a post (POST/GET /api/posts/:postId/comments).
   app.use('/api/posts/:postId/comments', postCommentsRouter);
   // Comments by id (PUT/DELETE /api/comments/:commentId).

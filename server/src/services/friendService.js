@@ -7,6 +7,7 @@
 
 import * as friendRepository from '../repositories/friendRepository.js';
 import * as userRepository from '../repositories/userRepository.js';
+import * as blockRepository from '../repositories/blockRepository.js';
 import {
   emitFriendRequestReceived,
   emitFriendRequestAccepted,
@@ -26,6 +27,13 @@ export const sendRequest = async ({ requesterId, addresseeId }) => {
   const addressee = await userRepository.findById(addresseeId);
   if (!addressee) {
     throw new NotFoundError('User not found');
+  }
+
+  // A block stops friend requests in both directions. Checked before the
+  // duplicate check so a blocked user cannot learn, from the difference
+  // between error messages, whether a request already exists.
+  if (await blockRepository.existsBetween(requesterId, addresseeId)) {
+    throw new ForbiddenError('You cannot send a friend request to this user');
   }
 
   // Check for existing friendship or pending request in either direction.

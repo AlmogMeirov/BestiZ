@@ -4,11 +4,32 @@
  * Failing fast at startup is far safer than crashing on a request months later because of a typo'd env var name.
  */
 
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
 import dotenv from 'dotenv';
 
-// Load .env file (only useful when running outside Docker; inside Docker
-// the variables are injected by docker-compose).
+/**
+ * Loads .env files. Only relevant outside Docker — inside a container the
+ * variables are injected by docker-compose.
+ *
+ * Two locations are tried, in order: the current working directory, for a
+ * server/.env if one exists, and then the repository root, which is where this
+ * project actually keeps its .env because that is where docker-compose reads
+ * it from.
+ *
+ * Without the second lookup, running `npm run migrate` or `npm run seed` from
+ * inside server/ dies on a missing JWT secret that is sitting one directory
+ * up — a confusing failure, since neither script has anything to do with JWTs.
+ *
+ * dotenv never overwrites a variable that is already set, so a DATABASE_URL
+ * passed on the command line still points these scripts at a managed provider
+ * while the secrets come from the file.
+ */
+const HERE = dirname(fileURLToPath(import.meta.url));
+
 dotenv.config();
+dotenv.config({ path: join(HERE, '../../../.env') });
 
 
  // Reads an environment variable and throws if it's missing.

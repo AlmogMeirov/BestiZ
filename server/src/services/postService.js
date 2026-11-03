@@ -17,6 +17,7 @@
 import * as postRepository from '../repositories/postRepository.js';
 import * as friendRepository from '../repositories/friendRepository.js';
 import * as userRepository from '../repositories/userRepository.js';
+import * as blockRepository from '../repositories/blockRepository.js';
 import {
   emitPostCreated,
   emitPostUpdated,
@@ -106,6 +107,17 @@ export const deletePost = async ({ postId, currentUserId }) => {
 // Internal helpers
 const canViewerSeePost = async (post, viewerId) => {
   if (post.author_id === viewerId) return true;
+
+  // A block hides posts in both directions, overriding visibility: a blocked
+  // user cannot read even a public post, and the blocker cannot read theirs.
+  //
+  // Putting the check here covers commenting for free — commentService calls
+  // getById before writing a comment, so a post nobody can see is a post
+  // nobody can comment on.
+  if (await blockRepository.existsBetween(post.author_id, viewerId)) {
+    return false;
+  }
+
   if (post.visibility === 'public') return true;
   if (post.visibility === 'private') return false;
   if (post.visibility === 'friends') {

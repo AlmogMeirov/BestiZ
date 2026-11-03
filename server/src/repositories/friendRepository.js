@@ -16,8 +16,8 @@ import { pool } from '../config/database.js';
 
  // Returns the existing friendship row between two users (in either direction), or undefined if none exists.
  // Used to detect duplicates before sending a new request and to load a request for accept/reject.
-export const findBetween = async (userIdA, userIdB) => {
-  const result = await pool.query(
+export const findBetween = async (userIdA, userIdB, client = pool) => {
+  const result = await client.query(
     `SELECT id, requester_id, addressee_id, status, created_at, updated_at
      FROM friendships
      WHERE (requester_id = $1 AND addressee_id = $2)
@@ -90,8 +90,8 @@ export const acceptRequest = async (id) => {
  *  - Cancelling an outgoing pending request.
  *  - Unfriending an accepted friendship.
  */
-export const deleteById = async (id) => {
-  const result = await pool.query(
+export const deleteById = async (id, client = pool) => {
+  const result = await client.query(
     `DELETE FROM friendships WHERE id = $1`,
     [id]
   );

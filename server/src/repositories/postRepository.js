@@ -7,6 +7,24 @@
 
 import { pool } from '../config/database.js';
 
+/**
+ * Hides posts when either user has blocked the other.
+ *
+ * Applied on top of the visibility predicate rather than inside it, because a
+ * block overrides visibility entirely — a blocked user cannot read even a
+ * public post. `$1` is the viewer in every query that uses this.
+ *
+ * Written as a fragment rather than a join so it cannot multiply rows: a pair
+ * may hold two block rows (each having blocked the other) and a join would
+ * return the post twice.
+ */
+const notBlocked = (viewerParam, authorExpression) => `
+      AND NOT EXISTS (
+        SELECT 1 FROM blocks b
+        WHERE (b.blocker_id = ${viewerParam} AND b.blocked_id = ${authorExpression})
+           OR (b.blocker_id = ${authorExpression} AND b.blocked_id = ${viewerParam})
+      )`;
+
 
  // Creates a new post.
 export const create = async ({ authorId, content, imageUrl, visibility }) => {
@@ -163,6 +181,7 @@ export const findFeed = async (
      FROM posts p
      JOIN users u ON u.id = p.author_id
      WHERE (${scopeClause})
+       ${notBlocked('$1', 'p.author_id')}
        ${cursorClause}
      ORDER BY p.created_at DESC, p.id DESC
      LIMIT $${params.length}`,
@@ -211,6 +230,7 @@ export const findByAuthor = async ({
            )
          )
        )
+       ${notBlocked('$2', '$1')}
        ${cursorClause}
      ORDER BY p.created_at DESC, p.id DESC
      LIMIT $${params.length}`,

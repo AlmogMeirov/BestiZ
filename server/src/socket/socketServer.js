@@ -124,3 +124,67 @@ export const emitFriendRemoved = (affectedUserId, { friendshipId, byUserId }) =>
     { friendshipId, byUserId }
   );
 };
+
+
+// Direct message events (always targeted at a single user)
+
+/**
+ * Delivers a new message to its recipient.
+ *
+ * Only the recipient is notified. The sender already has the message from the
+ * HTTP response that created it, and emitting to them as well would show it
+ * twice in the thread they are looking at.
+ */
+export const emitMessageReceived = (recipientId, message) => {
+  emit(
+    { type: 'users', ids: [recipientId] },
+    SOCKET_EVENTS.MESSAGE_RECEIVED,
+    { message }
+  );
+};
+
+/**
+ * Tells a sender that the other person has read their messages.
+ *
+ * Carries the specific ids rather than a blanket "all read" so the client can
+ * mark exactly those, without assuming anything about messages it may not
+ * have loaded yet.
+ */
+export const emitMessagesRead = (senderId, { readerId, messageIds }) => {
+  emit(
+    { type: 'users', ids: [senderId] },
+    SOCKET_EVENTS.MESSAGE_READ,
+    { readerId, messageIds }
+  );
+};
+
+/**
+ * Tells a recipient that a stranger has opened a conversation with them.
+ *
+ * Carries the opening message, since the whole point of the request is that
+ * the recipient reads it before deciding. Deliberately distinct from
+ * MESSAGE_RECEIVED so the client puts it in the Requests list rather than the
+ * inbox.
+ */
+export const emitMessageRequestReceived = (recipientId, { message }) => {
+  emit(
+    { type: 'users', ids: [recipientId] },
+    SOCKET_EVENTS.MESSAGE_REQUEST_RECEIVED,
+    { message }
+  );
+};
+
+/**
+ * Tells a sender their message request was accepted and the conversation is
+ * now open.
+ *
+ * There is no matching "declined" event, by design: a sender is never told
+ * they were declined, so the absence of this event is all they ever observe.
+ */
+export const emitMessageRequestAccepted = (requesterId, { requestId, acceptedBy }) => {
+  emit(
+    { type: 'users', ids: [requesterId] },
+    SOCKET_EVENTS.MESSAGE_REQUEST_ACCEPTED,
+    { requestId, acceptedBy }
+  );
+};

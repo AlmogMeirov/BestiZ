@@ -40,3 +40,34 @@ export const verifyDatabaseConnection = async () => {
     client.release();
   }
 };
+
+/**
+ * Runs several queries inside one transaction.
+ *
+ * Repository functions take an optional `client` so a service can compose
+ * writes across more than one table atomically:
+ *
+ *     await withTransaction(async (client) => {
+ *       await messageRepository.create({ ... }, client);
+ *       await messageRequestRepository.create({ ... }, client);
+ *     });
+ *
+ * The transaction boundary belongs to the business operation, not to any one
+ * table, which is why this is invoked from the service rather than hidden
+ * inside a repository. Committing, rolling back and releasing the connection
+ * all happen here, so no caller can leak a client by forgetting to.
+ */
+export const withTransaction = async (fn) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await fn(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};
