@@ -61,11 +61,26 @@ The project focuses on clean backend architecture, relational database design, s
 • Edit and delete support
 • Live synchronization across connected clients
 
+## Private Messaging
+
+• One-to-one conversations with read receipts and an unread counter
+• Message requests: a stranger's first message waits for a decision instead of landing in the inbox
+• Accepting a friend request settles any pending message request between the two, in one transaction
+• Per-user Socket.IO rooms deliver messages without polling
+
+## Blocking
+
+• Block and unblock from any profile
+• A block hides posts, comments, and profiles in both directions
+• Blocked users vanish from search, so a block cannot be routed around
+• Deliberately ambiguous: no event is emitted on block, so the blocked user cannot tell a block from silence
+
 ## Real-Time Features
 
 • Live post updates
 • Live comment updates
-• Friendship status updates
+• Live message delivery and read receipts
+• Friendship and message-request status updates
 • Per-user Socket.IO rooms
 
 ---
@@ -75,40 +90,43 @@ The project focuses on clean backend architecture, relational database design, s
 ## Authentication
 
 ### Sign In
-![Sign In](./docs/screenshots/Signin.jpg)
+![Sign In](./docs/screenshots/login.png)
 
 ### Invalid Credentials
-![Invalid Credentials](./docs/screenshots/Signin_wrongPassword.jpg)
+![Invalid Credentials](./docs/screenshots/signin-error.png)
 
 ### Sign Up
-![Sign Up](./docs/screenshots/Signup.jpg)
+![Sign Up](./docs/screenshots/signup.png)
 
 ---
 
 ## Feed & Posts
 
 ### Personalized Feed
-![Feed](./docs/screenshots/feed.jpg)
+![Feed](./docs/screenshots/feed.png)
 
 ### Real-Time Comments
-![Comments](./docs/screenshots/comment.jpg)
+![Comments](./docs/screenshots/comments.png)
 
 ---
 
 ## Social Features
 
+### Messages
+![Messages](./docs/screenshots/messenger.png)
+
 ### Friend Requests
-![Friend Requests](./docs/screenshots/friendrequest.jpg)
+![Friend Requests](./docs/screenshots/friend-requests.png)
 
 ### User Search
-![User Search](./docs/screenshots/Search.jpg)
+![User Search](./docs/screenshots/search.png)
 
 ---
 
 ## User Profiles
 
 ### Profile Page
-![Profile](./docs/screenshots/profilepage.jpg)
+![Profile](./docs/screenshots/profile.png)
 
 ---
 
@@ -206,17 +224,23 @@ npm install
 npm test
 ```
 
-The suite runs in about two seconds and needs no database. Unit tests cover pure
-logic; the integration tests drive the real Express app through Supertest with
-only the repository layer mocked, so routing, cookie parsing, middleware, and the
-error handler all execute for real.
+The suite runs in about five seconds and needs no database: 211 tests across ten
+files. Unit tests cover pure logic; the integration tests drive the real Express
+app through Supertest with only the repository layer mocked, so routing, cookie
+parsing, middleware, and the error handler all execute for real.
 
 | Suite | Covers |
 |---|---|
 | `tests/unit/tokens.test.js` | Token signing, expiry, and the separation between access and refresh tokens |
 | `tests/unit/authValidators.test.js` | Registration and login schema rules |
+| `tests/unit/requiredFields.test.js` | Every "X is required" message, pinned so a validation-library upgrade cannot silently reword them |
 | `tests/integration/authRefresh.test.js` | The refresh endpoint: every rejection path, rotation, and cookie flags |
 | `tests/integration/security.test.js` | Helmet response headers and both rate limiters |
+| `tests/integration/postVisibility.test.js` | Public / friends-only / private enforcement |
+| `tests/integration/messages.test.js` | Conversations, message requests, and read receipts |
+| `tests/integration/blocks.test.js` | Blocking in both directions, across posts, search, and messages |
+| `tests/integration/friendMessageRequests.test.js` | A pending message request is settled when the friendship is accepted |
+| `tests/integration/production.test.js` | Production-only configuration |
 
 GitHub Actions runs the suite and a production client build on every push and
 pull request. The client build runs on Ubuntu deliberately: its filesystem is
@@ -267,6 +291,11 @@ PostgreSQL
 BestiZ uses a broadcast + client-side filtering approach.
 
 > Note: For a production-scale system with stricter security requirements, visibility filtering should ideally happen on the server before broadcasting events.
+
+Blocking is the deliberate exception. No event is emitted when one user blocks
+another, because an event that arrived the instant someone blocked you would
+turn a block into a notification. The blocked user finds out the same way they
+would in person: things stop arriving.
 
 ---
 
@@ -324,6 +353,26 @@ token from an HTTP-only cookie.
 | PUT | `/comments/:commentId` | Yes | Edit own comment |
 | DELETE | `/comments/:commentId` | Yes | Delete own comment |
 
+## Messages
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/messages/conversations` | Yes | Conversation list with unread counts |
+| GET | `/messages/requests` | Yes | Message requests awaiting a decision |
+| GET | `/messages/unread-count` | Yes | Total unread messages |
+| GET | `/messages/:userId` | Yes | One conversation |
+| POST | `/messages` | Yes | Send a message, or open a request |
+| POST | `/messages/requests/:requestId/accept` | Yes | Accept a message request |
+| POST | `/messages/requests/:requestId/decline` | Yes | Decline a message request |
+
+## Blocks
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/blocks` | Yes | Users you have blocked |
+| POST | `/blocks` | Yes | Block a user |
+| DELETE | `/blocks/:userId` | Yes | Unblock a user |
+
 ---
 
 # Real-Time Events
@@ -343,6 +392,12 @@ how targeted events reach one person rather than everyone.
 | `friend:request_received` | Someone sends you a friend request |
 | `friend:request_accepted` | Your request is accepted |
 | `friend:removed` | A friendship or pending request is deleted |
+| `message:received` | A message is delivered to you |
+| `message:read` | Your message is read by the recipient |
+| `message:request_received` | A stranger opens a conversation with you |
+| `message:request_accepted` | Your message request is accepted |
+
+Blocking emits nothing, on purpose. See [Real-Time Architecture](#real-time-architecture).
 
 ---
 
@@ -350,7 +405,7 @@ how targeted events reach one person rather than everyone.
 
 The complete database documentation, including the full ERD diagram, schema explanation, constraints, indexes, and design decisions, is documented separately in:
 
-📄 [docs/DATABASE.md](./docs/BestiZ_Database_Architecture.md)
+📄 [Database architecture](./docs/BestiZ_Database_Architecture.md)
 
 ---
 
@@ -399,11 +454,9 @@ validation at the route boundary as a second layer.
 
 # Future Improvements
 
-• Private messaging UI — the `messages` table exists in the schema but has no
-  feature built on it yet
 • Server-side visibility filtering before broadcasting real-time events
 • Database-backed refresh token revocation
 • Notifications system
 • PostgreSQL full-text search
-• User blocking
+• Friend suggestions based on mutual friends
 • Image uploads (posts currently accept an image URL)
