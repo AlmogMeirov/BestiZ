@@ -1,0 +1,94 @@
+.rail {
+  position: sticky;
+  top: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.16s ease;
+}
+
+.card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.handle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-faint);
+}
+
+/* The shortcuts sit directly on the page rather than in a card of their own.
+   Two stacked cards would read as two sections; this is one. */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.link:hover {
+  background-color: var(--color-sunken);
+  color: var(--color-text);
+}
+
+.linkActive,
+.linkActive:hover {
+  background-color: var(--color-primary-wash);
+  color: var(--color-primary);
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

@@ -4,12 +4,53 @@
  * and allows users to filter and load more posts as they scroll.
  */
 
+/*
+ * The three-column shell.
+ *
+ * `minmax(0, 1fr)` for the middle column rather than `1fr`: a grid track
+ * defaults to a minimum of its content, so a long unbroken word in a post
+ * would otherwise push the whole layout wider than the window.
+ *
+ * The rails are fixed widths because they hold fixed things. The feed takes
+ * what is left, capped so the lines stay readable.
+ */
+.layout {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr) 300px;
+  gap: 26px;
+  align-items: start;
+  width: 100%;
+}
+
 .page {
   display: flex;
   flex-direction: column;
   gap: 16px;
   max-width: 640px;
+  width: 100%;
   margin: 0 auto;
+}
+
+/* The right rail goes first: friend requests are also a whole page of their
+   own, so losing the shortcut costs least. */
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: 248px minmax(0, 1fr);
+  }
+
+  .layout > aside:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 920px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .layout > aside {
+    display: none;
+  }
 }
 
 /* Container for the filter tabs above the feed. The tabs themselves are
@@ -29,7 +70,7 @@
 }
 
 .loadingMore {
-  color: #64748b;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   padding: 0.75rem;
 }

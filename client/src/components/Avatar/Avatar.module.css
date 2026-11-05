@@ -1,13 +1,24 @@
+/*
+ * The gradient itself is set inline, because it is derived from the user's id
+ * at render time. What lives here is everything that is the same for every
+ * avatar.
+ *
+ * The inset highlight is the whole trick: a one-pixel line of white along the
+ * top edge reads as light falling on a sphere, which is what stops a coloured
+ * circle looking like a flat swatch. The outer shadow sits it on the page.
+ */
+
 .avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   user-select: none;
   flex-shrink: 0;
   line-height: 1;
-  /* Subtle outline blends the avatar nicely against any background. */
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 1px 3px rgba(22, 21, 31, 0.14);
 }

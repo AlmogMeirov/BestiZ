@@ -33,6 +33,7 @@ import EditProfileModal from '../../components/EditProfileModal/EditProfileModal
 import PostsList from '../../components/PostsList/PostsList.jsx';
 
 import styles from './UserProfilePage.module.css';
+import { SkeletonGroup } from '../../components/Skeleton/Skeleton.jsx';
 
 const PAGE_SIZE = 10;
 
@@ -369,7 +370,7 @@ const UserProfilePage = () => {
   // ----- Render -----
 
   if (loading) {
-    return <div className={styles.message}>Loading...</div>;
+    return <SkeletonGroup label="Loading profile" count={2} />;
   }
 
   if (error && !profileUser) {
@@ -409,13 +410,21 @@ const UserProfilePage = () => {
           <div className={styles.meta}>
             {joinedDate && (
               <span className={styles.metaItem}>
-                <span className={styles.metaIcon} aria-hidden="true">📅</span>
+                <svg className={styles.metaIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3.5" y="5" width="17" height="15" rx="3" />
+                  <path d="M3.5 10h17M8 3v4M16 3v4" />
+                </svg>
                 Joined {joinedDate}
               </span>
             )}
             {friendCount !== null && (
               <span className={styles.metaItem}>
-                <span className={styles.metaIcon} aria-hidden="true">👥</span>
+                <svg className={styles.metaIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="9" cy="8" r="3.2" />
+                  <path d="M3 20a6 6 0 0 1 12 0" />
+                  <circle cx="17" cy="9" r="2.6" />
+                  <path d="M15.5 20a5.5 5.5 0 0 1 5.5-5.5" />
+                </svg>
                 {friendCount} {friendCount === 1 ? 'friend' : 'friends'}
               </span>
             )}

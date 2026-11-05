@@ -6,16 +6,22 @@
 .card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  gap: 13px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.16s ease;
 }
 
+/* Two pixels. The card lifts enough to answer the pointer and not enough to
+   make a feed of them feel like it is breathing. */
 .card:hover {
-  border-color: var(--color-text-muted);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 /* Header */
@@ -27,12 +33,19 @@
 
 .author {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 12px;
   flex: 1;
   min-width: 0;
   text-decoration: none;
   color: inherit;
+}
+
+.authorText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
 
 .author:hover .displayName {
@@ -41,43 +54,35 @@
 
 .displayName {
   display: block;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
   color: var(--color-text);
   transition: color 0.15s ease;
 }
 
 .username {
   display: block;
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.visibility {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--color-text-muted);
-  background-color: var(--color-bg);
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  flex-shrink: 0;
+  color: var(--color-text-faint);
 }
 
 .editingBadge {
   font-size: 12px;
   font-weight: 600;
   color: var(--color-primary);
-  background-color: rgba(99, 102, 241, 0.1);
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+  background-color: var(--color-primary-wash);
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
   flex-shrink: 0;
 }
 
 /*Content */
 .content {
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--color-text);
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--color-text-2);
   white-space: pre-wrap;
   word-break: break-word;
   margin: 0;
@@ -87,7 +92,7 @@
   display: block;
   max-width: 100%;
   max-height: 480px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   object-fit: cover;
 }
 
@@ -97,7 +102,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding-top: 8px;
+  padding-top: 14px;
   border-top: 1px solid var(--color-border);
   flex-wrap: wrap;
 }
@@ -110,8 +115,9 @@
 }
 
 .timestamp {
-  font-size: 12px;
-  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-faint);
 }
 
 .editedTag {
@@ -123,21 +129,29 @@
   gap: 8px;
 }
 
-/* Compact text-style "Show comments" toggle. */
+/*
+ * The comments toggle sits between a link and a button: it is an action, but
+ * a quiet one that should not compete with Edit and Delete. Giving it a
+ * background only on hover keeps the footer calm while still making it
+ * obvious that the whole area is pressable.
+ */
 .commentsToggle {
   background: none;
   border: none;
-  padding: 0;
+  padding: 7px 13px;
+  margin: -7px -13px;
+  border-radius: var(--radius-pill);
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-text-muted);
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .commentsToggle:hover {
-  opacity: 0.75;
+  background-color: var(--color-sunken);
+  color: var(--color-text);
 }
 
 /*Edit mode  */
@@ -161,7 +175,7 @@
   outline: none;
   border-color: var(--color-primary);
   background-color: var(--color-surface);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 4px var(--color-primary-wash);
 }
 
 .editInput {
@@ -181,7 +195,7 @@
   outline: none;
   border-color: var(--color-primary);
   background-color: var(--color-surface);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 4px var(--color-primary-wash);
 }
 
 .editFooter {
@@ -214,10 +228,10 @@
 }
 
 .alert {
-  background-color: rgba(220, 38, 38, 0.08);
+  background-color: var(--color-error-wash);
   color: var(--color-error);
   font-size: 13px;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  border: 1px solid var(--color-error-line);
 }

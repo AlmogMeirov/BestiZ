@@ -3,48 +3,33 @@
  * Scoped via CSS Modules.
   */
 
-.page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.card {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: 40px;
-  width: 100%;
-  max-width: 420px;
-}
-
 .title {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 6px;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-tighter);
+  margin-bottom: 7px;
 }
 
 .subtitle {
+  font-size: 15px;
   color: var(--color-text-muted);
-  margin-bottom: 28px;
+  margin-bottom: 26px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 /* Inline error alert above the submit button */
 .alert {
-  background-color: rgba(220, 38, 38, 0.08);
+  background-color: var(--color-error-wash);
   color: var(--color-error);
   font-size: 13px;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  border: 1px solid var(--color-error-line);
 }
 
 .footer {

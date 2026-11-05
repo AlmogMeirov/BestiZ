@@ -10,15 +10,34 @@
 import { useState } from 'react';
 
 import * as postsApi from '../../api/postsApi.js';
+import { useAuth } from '../../contexts/AuthContext.jsx';
+import Avatar from '../Avatar/Avatar.jsx';
 import Button from '../Button/Button.jsx';
 
 import styles from './CreatePost.module.css';
 
 const MAX_CONTENT_LENGTH = 5000;
 
+/*
+ * The three audiences, in order of reach. Each is a radio rather than an
+ * option in a dropdown: there are only three, they are the single most
+ * consequential choice on this form, and a dropdown hides two thirds of a
+ * decision behind a click.
+ */
+const AUDIENCES = [
+  { value: 'public', label: 'Public' },
+  { value: 'friends', label: 'Friends' },
+  { value: 'private', label: 'Only me' },
+];
+
 const CreatePost = ({ onPostCreated }) => {
+  const { user } = useAuth();
+
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  // The image field stays out of the way until it is wanted. Most posts are
+  // text, and an empty input is still a thing to read past.
+  const [showImageField, setShowImageField] = useState(false);
   const [visibility, setVisibility] = useState('public');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -53,53 +72,87 @@ const CreatePost = ({ onPostCreated }) => {
 
   return (
     <form className={styles.card} onSubmit={handleSubmit}>
-      <textarea
-        className={styles.textarea}
-        placeholder="What's on your mind?"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        maxLength={MAX_CONTENT_LENGTH}
-        rows={3}
-        disabled={submitting}
-      />
+      <div className={styles.composeRow}>
+        {user && (
+          <Avatar
+            name={user.display_name || user.username}
+            userId={user.id}
+            size={42}
+          />
+        )}
+        <textarea
+          className={styles.textarea}
+          placeholder="What's on your mind?"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          maxLength={MAX_CONTENT_LENGTH}
+          rows={2}
+          disabled={submitting}
+          aria-label="Post content"
+        />
+      </div>
 
-      <input
-        type="url"
-        className={styles.urlInput}
-        placeholder="Image URL (optional)"
-        value={imageUrl}
-        onChange={(e) => setImageUrl(e.target.value)}
-        disabled={submitting}
-      />
+      {showImageField && (
+        <input
+          type="url"
+          className={styles.urlInput}
+          placeholder="Paste an image link"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          disabled={submitting}
+          aria-label="Image URL"
+          autoFocus
+        />
+      )}
 
       {error && <div className={styles.alert}>{error}</div>}
 
       <div className={styles.footer}>
-        <div className={styles.left}>
-          <label htmlFor="visibility-select" className={styles.visibilityLabel}>
-            Who can see this?
-          </label>
-          <select
-            id="visibility-select"
-            className={styles.select}
-            value={visibility}
-            onChange={(e) => setVisibility(e.target.value)}
-            disabled={submitting}
-          >
-            <option value="public">🌍 Public</option>
-            <option value="friends">👥 Friends only</option>
-            <option value="private">🔒 Only me</option>
-          </select>
-        </div>
+        <fieldset className={styles.audience} disabled={submitting}>
+          <legend className={styles.srOnly}>Who can see this?</legend>
+          {AUDIENCES.map((option) => (
+            <label key={option.value} className={styles.chip}>
+              <input
+                type="radio"
+                name="visibility"
+                value={option.value}
+                checked={visibility === option.value}
+                onChange={(e) => setVisibility(e.target.value)}
+                className={styles.srOnly}
+              />
+              <span className={styles.chipFace}>{option.label}</span>
+            </label>
+          ))}
+        </fieldset>
 
-        <div className={styles.right}>
-          <span className={styles.counter}>
-            {content.length}/{MAX_CONTENT_LENGTH}
-          </span>
-          <Button type="submit" disabled={!canSubmit} loading={submitting}>
-            Post
-          </Button>
-        </div>
+        <button
+          type="button"
+          className={`${styles.iconButton} ${
+            showImageField ? styles.iconButtonOn : ''
+          }`}
+          onClick={() => {
+            setShowImageField((open) => !open);
+            if (showImageField) setImageUrl('');
+          }}
+          disabled={submitting}
+          aria-pressed={showImageField}
+          aria-label="Add an image"
+          title="Add an image"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="3" y="4" width="18" height="16" rx="3" />
+            <circle cx="8.5" cy="9.5" r="1.6" />
+            <path d="m4 17 5-5 4 4 2.5-2.5L20 17" />
+          </svg>
+        </button>
+
+        <span className={styles.counter}>
+          {content.length} / {MAX_CONTENT_LENGTH}
+        </span>
+
+        <Button type="submit" disabled={!canSubmit} loading={submitting}>
+          Post
+        </Button>
       </div>
     </form>
   );

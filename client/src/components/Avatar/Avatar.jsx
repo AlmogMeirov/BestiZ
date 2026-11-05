@@ -17,18 +17,26 @@ const SIZE_PRESETS = {
 };
 
 
-// A small palette of background colors. The hash function below picks an index into this palette.
+/**
+ * The palette.
+ *
+ * Each entry is a pair: a lighter top and a darker bottom, rendered as a
+ * short diagonal gradient. A flat disc of colour looks like a placeholder;
+ * the gradient, plus the highlight in the CSS, makes it read as an object.
+ *
+ * Eight hues rather than ten, each at a similar lightness, so a feed of
+ * avatars looks like one set instead of a paint chart — and so white
+ * initials stay legible on every one of them.
+ */
 const PALETTE = [
-  '#6366f1', 
-  '#8b5cf6', 
-  '#ec4899', 
-  '#ef4444', 
-  '#f59e0b', 
-  '#10b981',
-  '#14b8a6',
-  '#0ea5e9', 
-  '#3b82f6', 
-  '#f97316', 
+  ['#8A7BFF', '#5A48E8'], // violet, the brand hue
+  ['#6FA8FF', '#2F6FE4'], // blue
+  ['#2FD3A8', '#10A37F'], // green
+  ['#FF8A7D', '#F2553F'], // coral
+  ['#FFB65C', '#E8871E'], // amber
+  ['#F27DBB', '#D4479A'], // pink
+  ['#5FD0E0', '#1F9BB3'], // cyan
+  ['#A98BFF', '#7C4DE0'], // purple
 ];
 
 // A simple hash function to convert a string into a number. This is used to pick a color from the palette based on the userId or name.
@@ -57,8 +65,7 @@ const Avatar = ({ name, userId, size = 'md', className = '' }) => {
 
   // Use userId for deterministic coloring when available, otherwise fall back to the name. Either way, the same user always gets the same color.
   const seed = userId || name || 'unknown';
-  const colorIndex = hashString(seed) % PALETTE.length;
-  const backgroundColor = PALETTE[colorIndex];
+  const [light, dark] = PALETTE[hashString(seed) % PALETTE.length];
 
   const initials = getInitials(name);
 
@@ -72,7 +79,7 @@ const Avatar = ({ name, userId, size = 'md', className = '' }) => {
         width: pixelSize,
         height: pixelSize,
         fontSize,
-        backgroundColor,
+        backgroundImage: `linear-gradient(145deg, ${light}, ${dark})`,
       }}
       role="img"
       aria-label={name ? `${name}'s avatar` : 'avatar'}

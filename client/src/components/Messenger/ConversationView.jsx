@@ -13,6 +13,7 @@ import { useMessenger } from '../../contexts/MessengerContext.jsx';
 import { formatRelativeTime } from './formatRelativeTime.js';
 
 import styles from './Messenger.module.css';
+import { ThreadSkeleton } from '../Skeleton/Skeleton.jsx';
 
 const MAX_LENGTH = 2000;
 
@@ -27,25 +28,48 @@ const ConversationView = () => {
     decline,
   } = useMessenger();
 
+  /**
+   * Message ids this view has already drawn.
+   *
+   * Anything not in the set is new to the screen, and anything new that came
+   * from the other person arrived on its own — so it gets a short entrance.
+   * Our own messages do not: we watched ourselves send them, and a bubble
+   * that animates in response to your own keypress is noise.
+   *
+   * A ref rather than state, for the same reason as the feed: it is read
+   * during render and never needs to cause one.
+   */
+  const seenMessageIds = useRef(new Set());
+  /* The first pass over a thread records what is already there without
+     animating it. Opening a conversation should show history, not replay
+     it. */
+  const primed = useRef(false);
+
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const bottomRef = useRef(null);
 
   // The composer is per-conversation: switching threads must not carry a
-  // half-typed message into someone else's window.
+  // half-typed message into someone else's window. The seen set is per
+  // conversation too, or opening an old thread would animate all of it.
   useEffect(() => {
     setDraft('');
     setError('');
+    seenMessageIds.current = new Set();
+    primed.current = false;
   }, [activePartner?.id]);
 
   // Keep the newest message in view as the thread grows.
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: 'end' });
+    // Everything rendered up to here is history. From the next message on,
+    // anything unseen genuinely arrived while the thread was open.
+    primed.current = true;
   }, [thread?.messages.length]);
 
   if (threadLoading && !thread) {
-    return <p className={styles.empty}>Loading…</p>;
+    return <ThreadSkeleton />;
   }
 
   if (!thread) {
@@ -91,12 +115,15 @@ const ConversationView = () => {
 
         {messages.map((message) => {
           const mine = message.sender_id !== activePartner.id;
+          const isNew =
+            primed.current && !mine && !seenMessageIds.current.has(message.id);
+          seenMessageIds.current.add(message.id);
           return (
             <div
               key={message.id}
               className={`${styles.bubbleRow} ${
                 mine ? styles.bubbleRowMine : ''
-              }`}
+              } ${isNew ? 'bestiz-popped' : ''}`}
             >
               <div
                 className={`${styles.bubble} ${mine ? styles.bubbleMine : ''}`}

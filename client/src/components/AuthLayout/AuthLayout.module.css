@@ -1,0 +1,199 @@
+/*
+ * Full bleed.
+ *
+ * This was a card floating in the middle of a grey page, which made the
+ * first screen of the product look like a dialog box. Signing in is the
+ * whole screen's job, so it takes the whole screen: the brand panel runs
+ * edge to edge on one side, the form sits centred in the other.
+ */
+.page {
+  min-height: 100vh;
+  background-color: var(--color-surface);
+}
+
+.frame {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-surface);
+  overflow: hidden;
+}
+
+/* ----- The brand panel ----- */
+
+.art {
+  position: relative;
+  overflow: hidden;
+  /* The same four-stop ramp the profile cover uses, with a light source in
+     the top-left corner. Two colours and a straight line between them is
+     what makes a gradient look like a default. */
+  background:
+    radial-gradient(
+      120% 130% at 14% 6%,
+      rgba(255, 255, 255, 0.26) 0%,
+      rgba(255, 255, 255, 0) 54%
+    ),
+    linear-gradient(
+      142deg,
+      #4b39d6 0%,
+      #6e4fe4 40%,
+      #9b59c9 72%,
+      #d06aa4 100%
+    );
+}
+
+.mark {
+  position: absolute;
+  left: 52px;
+  top: 44px;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  color: #ffffff;
+}
+
+.ring {
+  position: absolute;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+}
+
+.ring1 {
+  width: 420px;
+  height: 420px;
+  left: -90px;
+  bottom: -150px;
+}
+
+.ring2 {
+  width: 300px;
+  height: 300px;
+  left: -30px;
+  bottom: -90px;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.ring3 {
+  width: 180px;
+  height: 180px;
+  left: 30px;
+  bottom: -30px;
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+.glimpses {
+  position: absolute;
+  right: 34px;
+  top: 142px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+/* Each one is offset from the next, so they read as things that arrived at
+   different moments rather than as a list. */
+.glimpse:nth-child(2) {
+  margin-right: 44px;
+}
+
+.glimpse {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 15px;
+  border-radius: var(--radius-md);
+  background-color: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dot {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.green {
+  background-color: #2fd3a8;
+  color: #063a2c;
+}
+
+.coral {
+  background-color: #ff8a7d;
+  color: #5a1b12;
+}
+
+.violet {
+  background-color: #8a7bff;
+  color: #1b1150;
+}
+
+/* ----- The form side ----- */
+
+.pane {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* The form keeps a comfortable measure however wide the half gets. Stretching
+   a password field across 700px helps nobody. */
+.pane > * {
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Shown only once the brand panel is gone, so the screen still says what it
+   belongs to. */
+.paneMark {
+  display: none;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  color: var(--color-text);
+  text-decoration: none;
+  margin-bottom: 22px;
+}
+
+.paneMarkZ {
+  color: var(--color-primary);
+}
+
+@media (max-width: 860px) {
+  .page {
+    background-color: var(--color-surface);
+  }
+
+  .frame {
+    grid-template-columns: 1fr;
+    min-height: 100vh;
+  }
+
+  .art {
+    display: none;
+  }
+
+  .paneMark {
+    display: block;
+  }
+
+  .pane {
+    padding: 8vh 24px 40px;
+    justify-content: flex-start;
+  }
+}

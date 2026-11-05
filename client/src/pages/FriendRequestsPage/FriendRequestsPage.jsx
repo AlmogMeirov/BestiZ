@@ -18,6 +18,7 @@ import { useMessenger } from '../../contexts/MessengerContext.jsx';
 import Button from '../../components/Button/Button.jsx';
 
 import styles from './FriendRequestsPage.module.css';
+import { PersonSkeleton, SkeletonGroup } from '../../components/Skeleton/Skeleton.jsx';
 // The main component for the Friend Requests page. It manages state for incoming and outgoing requests,
 // handles loading and error states, and defines actions for accepting, rejecting, or canceling requests.
 const FriendRequestsPage = () => {
@@ -77,7 +78,12 @@ const FriendRequestsPage = () => {
   const handleCancel = (id) => runAction(() => friendsApi.deleteFriendship(id));
 
   if (loading) {
-    return <div className={styles.message}>Loading...</div>;
+    return (
+      <SkeletonGroup label="Loading requests">
+        <PersonSkeleton />
+        <PersonSkeleton />
+      </SkeletonGroup>
+    );
   }
 
   const hasNoRequests = incoming.length === 0 && outgoing.length === 0;

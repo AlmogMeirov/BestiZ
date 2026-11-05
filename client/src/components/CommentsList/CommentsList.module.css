@@ -41,7 +41,7 @@
   outline: none;
   border-color: var(--color-primary);
   background-color: var(--color-surface);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 4px var(--color-primary-wash);
 }
 
 .composeFooter {
@@ -73,12 +73,12 @@
 }
 
 .alert {
-  background-color: rgba(220, 38, 38, 0.08);
+  background-color: var(--color-error-wash);
   color: var(--color-error);
   font-size: 12px;
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  border: 1px solid var(--color-error-line);
 }
 
 /*  List  */

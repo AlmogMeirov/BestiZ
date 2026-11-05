@@ -102,11 +102,11 @@
 }
 
 .alert {
-  background-color: rgba(220, 38, 38, 0.08);
+  background-color: var(--color-error-wash);
   color: var(--color-error);
   font-size: 14px;
   padding: 12px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  border: 1px solid var(--color-error-line);
   margin-bottom: 16px;
 }

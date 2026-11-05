@@ -1,0 +1,55 @@
+/*
+ * The placeholders mirror the padding and radius of the real components, so
+ * the switch from skeleton to content changes what is on the page without
+ * changing where anything sits.
+ */
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.post {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.headText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.person {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 16px;
+}

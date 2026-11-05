@@ -8,6 +8,7 @@
 import PostCard from '../PostCard/PostCard.jsx';
 
 import styles from './PostsList.module.css';
+import { SkeletonGroup } from '../Skeleton/Skeleton.jsx';
 
 const PostsList = ({
   posts,
@@ -16,9 +17,13 @@ const PostsList = ({
   emptyMessage = 'Nothing to show yet.',
   onDelete,
   onUpdate,
+  /* Ids of posts that reached this list over the socket rather than from
+     something the viewer did. They get a brief entrance so a live update is
+     distinguishable from a page that was reloaded. */
+  livePostIds,
 }) => {
   if (loading) {
-    return <div className={styles.message}>Loading posts...</div>;
+    return <SkeletonGroup label="Loading posts" count={3} />;
   }
 
   if (error) {
@@ -37,6 +42,7 @@ const PostsList = ({
           post={post}
           onDelete={onDelete}
           onUpdate={onUpdate}
+          arrivedLive={livePostIds?.has(post.id) ?? false}
         />
       ))}
     </div>

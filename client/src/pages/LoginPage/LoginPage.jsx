@@ -14,6 +14,7 @@ import Button from '../../components/Button/Button.jsx';
 import Input from '../../components/Input/Input.jsx';
 
 import styles from './LoginPage.module.css';
+import AuthLayout from '../../components/AuthLayout/AuthLayout.jsx';
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -43,44 +44,42 @@ const LoginPage = () => {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Welcome back</h1>
-        <p className={styles.subtitle}>Sign in to your BestiZ account.</p>
+    <AuthLayout>
+      <h1 className={styles.title}>Welcome back</h1>
+      <p className={styles.subtitle}>Sign in to pick up where you left off.</p>
 
-        <form className={styles.form} onSubmit={handleSubmit} noValidate>
-          <Input
-            label="Email or username"
-            type="text"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-            autoComplete="username"
-            required
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <Input
+          label="Email or username"
+          type="text"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          autoComplete="username"
+          required
+        />
+        <Input
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          required
+        />
 
-          {error && <div className={styles.alert}>{error}</div>}
+        {error && <div className={styles.alert}>{error}</div>}
 
-          <Button type="submit" loading={submitting} fullWidth>
-            Sign in
-          </Button>
-        </form>
+        <Button type="submit" loading={submitting} fullWidth>
+          Sign in
+        </Button>
+      </form>
 
-        <p className={styles.footer}>
-          Don&apos;t have an account?{' '}
-          <Link to="/register" className={styles.link}>
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className={styles.footer}>
+        Don&apos;t have an account?{' '}
+        <Link to="/register" className={styles.link}>
+          Sign up
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };
 

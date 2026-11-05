@@ -70,7 +70,7 @@
   font-size: 1rem;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  background: #f8fafc;
+  background: var(--color-sunken);
   color: #0f172a;
   transition: border-color 0.15s, background-color 0.15s;
   font-family: inherit;
@@ -79,14 +79,14 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: #6366f1;
+  border-color: var(--color-primary);
   background: #ffffff;
 }
 
 .input:disabled,
 .textarea:disabled {
   background: #f1f5f9;
-  color: #64748b;
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 
@@ -98,7 +98,7 @@
 
 .hint {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .counter {

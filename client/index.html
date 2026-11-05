@@ -3,7 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- An SVG favicon scales to every size the browser asks for, so there is
+         no set of PNGs to keep in step. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Tints the browser chrome on mobile, which is the difference between a
+         page that happens to be on a phone and one that belongs there. -->
+    <meta name="theme-color" content="#5A48E8" />
+
     <title>BestiZ</title>
+    <meta
+      name="description"
+      content="A social network with friends, posts and real-time messaging."
+    />
+
+    <!-- The font is also imported from index.css; preconnecting here lets the
+         handshake start before the stylesheet has been parsed. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>

@@ -19,6 +19,7 @@ import * as blocksApi from '../../api/blocksApi.js';
 import Button from '../../components/Button/Button.jsx';
 
 import styles from './BlockedUsersPage.module.css';
+import { PersonSkeleton, SkeletonGroup } from '../../components/Skeleton/Skeleton.jsx';
 
 const BlockedUsersPage = () => {
   const [blocked, setBlocked] = useState([]);
@@ -67,7 +68,12 @@ const BlockedUsersPage = () => {
   };
 
   if (loading) {
-    return <div className={styles.message}>Loading...</div>;
+    return (
+      <SkeletonGroup label="Loading blocked users">
+        <PersonSkeleton />
+        <PersonSkeleton />
+      </SkeletonGroup>
+    );
   }
 
   return (

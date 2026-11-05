@@ -13,6 +13,7 @@ import Button from '../../components/Button/Button.jsx';
 import Input from '../../components/Input/Input.jsx';
 
 import styles from './RegisterPage.module.css';
+import AuthLayout from '../../components/AuthLayout/AuthLayout.jsx';
 
 // The RegisterPage component renders a registration form and handles user sign-up.
 // It uses the `useAuth` hook to access the `register` function and `useNavigate` for navigation.
@@ -46,60 +47,58 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Create your account</h1>
-        <p className={styles.subtitle}>Join BestiZ to connect with friends.</p>
+    <AuthLayout>
+      <h1 className={styles.title}>Create your account</h1>
+      <p className={styles.subtitle}>A minute to set up, and your friends are one search away.</p>
 
-        <form className={styles.form} onSubmit={handleSubmit} noValidate>
-          <Input
-            label="Display name"
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            autoComplete="name"
-            required
-          />
-          <Input
-            label="Username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
-            required
-          />
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            required
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            required
-          />
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <Input
+          label="Display name"
+          type="text"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          autoComplete="name"
+          required
+        />
+        <Input
+          label="Username"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          autoComplete="username"
+          required
+        />
+        <Input
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          required
+        />
+        <Input
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="new-password"
+          required
+        />
 
-          {error && <div className={styles.alert}>{error}</div>}
+        {error && <div className={styles.alert}>{error}</div>}
 
-          <Button type="submit" loading={submitting} fullWidth>
-            Create account
-          </Button>
-        </form>
+        <Button type="submit" loading={submitting} fullWidth>
+          Create account
+        </Button>
+      </form>
 
-        <p className={styles.footer}>
-          Already have an account?{' '}
-          <Link to="/login" className={styles.link}>
-            Sign in
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className={styles.footer}>
+        Already have an account?{' '}
+        <Link to="/login" className={styles.link}>
+          Sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };
 

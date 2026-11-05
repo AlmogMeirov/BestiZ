@@ -29,6 +29,8 @@ import { connectSocket } from '../../socket/socketClient.js';
 import { SOCKET_EVENTS } from '../../socket/socketEvents.js';
 
 import styles from './FeedPage.module.css';
+import ProfileRail from '../../components/ProfileRail/ProfileRail.jsx';
+import ActivityRail from '../../components/ActivityRail/ActivityRail.jsx';
 
 const PAGE_SIZE = 10;
 
@@ -68,6 +70,19 @@ const FeedPage = () => {
   const [posts, setPosts] = useState([]);
   const [filter, setFilter] = useState('all');
   const [friendIds, setFriendIds] = useState(() => new Set());
+  /**
+   * Posts that arrived over the socket.
+   *
+   * Held in a ref rather than state: the value is only ever read while
+   * rendering a post that has just been added, and putting it in state would
+   * schedule a second render for information the first one already has.
+   *
+   * Nothing is ever removed. The CSS animation runs once when the element
+   * mounts, so an id that stays in the set has no further effect, and the set
+   * is discarded with the page.
+   */
+  const livePostIds = useRef(new Set());
+
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -179,6 +194,10 @@ const FeedPage = () => {
       if (!matchesFilter(post, filter, currentUser.id, friendIds)) return;
       setPosts((prev) => {
         if (prev.some((p) => p.id === post.id)) return prev;
+        // Marked before the state update, so the card has the flag on the
+        // render that mounts it — which is the only render the entrance
+        // animation can play on.
+        livePostIds.current.add(post.id);
         return [post, ...prev];
       });
     };
@@ -284,37 +303,57 @@ const FeedPage = () => {
   }[filter];
 
   return (
-    <div className={styles.page}>
-      <CreatePost onPostCreated={handlePostCreated} />
+    /*
+     * Three columns, not one.
+     *
+     * A single centred column of posts leaves a wide screen reading as empty
+     * margins with something in the middle. Widening the column is not the
+     * answer — past about 70 characters a line stops being comfortable — so
+     * the margins get content of their own instead: who you are on the left,
+     * who is waiting on you on the right.
+     *
+     * Both rails are supporting material. They drop away as the window
+     * narrows, right one first, and the feed keeps its width the whole way
+     * down.
+     */
+    <div className={styles.layout}>
+      <ProfileRail />
 
-      <div className={styles.filtersRow}>
-        <FilterTabs
-          options={FILTER_OPTIONS}
-          value={filter}
-          onChange={setFilter}
+      <div className={styles.page}>
+        <CreatePost onPostCreated={handlePostCreated} />
+
+        <div className={styles.filtersRow}>
+          <FilterTabs
+            options={FILTER_OPTIONS}
+            value={filter}
+            onChange={setFilter}
+          />
+        </div>
+
+        <PostsList
+          posts={posts}
+          loading={loading}
+          error={error}
+          emptyMessage={emptyMessage}
+          onDelete={handleDelete}
+          onUpdate={handlePostUpdated}
+          livePostIds={livePostIds.current}
         />
+
+        {!loading && hasMore && posts.length > 0 && (
+          <div ref={sentinelRef} className={styles.sentinel}>
+            {loadingMore && (
+              <div className={styles.loadingMore}>Loading more...</div>
+            )}
+          </div>
+        )}
+
+        {!loading && !hasMore && posts.length > 0 && (
+          <div className={styles.endMessage}>You&apos;ve reached the end.</div>
+        )}
       </div>
 
-      <PostsList
-        posts={posts}
-        loading={loading}
-        error={error}
-        emptyMessage={emptyMessage}
-        onDelete={handleDelete}
-        onUpdate={handlePostUpdated}
-      />
-
-      {!loading && hasMore && posts.length > 0 && (
-        <div ref={sentinelRef} className={styles.sentinel}>
-          {loadingMore && (
-            <div className={styles.loadingMore}>Loading more...</div>
-          )}
-        </div>
-      )}
-
-      {!loading && !hasMore && posts.length > 0 && (
-        <div className={styles.endMessage}>You&apos;ve reached the end.</div>
-      )}
+      <ActivityRail />
     </div>
   );
 };

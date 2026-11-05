@@ -7,10 +7,10 @@
 
 .tabs {
   display: inline-flex;
-  gap: 4px;
+  gap: 2px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
   padding: 4px;
   box-shadow: var(--shadow-sm);
 }
@@ -22,30 +22,26 @@
   font-family: inherit;
   cursor: pointer;
 
-  padding: 8px 18px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 7px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
   color: var(--color-text-muted);
-  border-radius: calc(var(--radius-md) - 2px);
+  border-radius: var(--radius-pill);
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .tab:hover:not(.tabActive) {
-  background-color: var(--color-bg);
+  background-color: var(--color-sunken);
   color: var(--color-text);
 }
 
+/* The selected tab is ink, not brand colour. Purple is reserved for things
+   you can do; this is a statement about what you are looking at. */
 .tabActive {
-  background-color: var(--color-primary);
+  background-color: var(--color-text);
   color: #ffffff;
-  font-weight: 600;
 }
 
 .tabActive:hover {
-  background-color: var(--color-primary);
-}
-
-.tab:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  background-color: var(--color-text);
 }

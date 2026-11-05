@@ -11,6 +11,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import * as postsApi from '../../api/postsApi.js';
 import Button from '../Button/Button.jsx';
+import Avatar from '../Avatar/Avatar.jsx';
+import VisibilityTag from '../VisibilityTag/VisibilityTag.jsx';
 import CommentsList from '../CommentsList/CommentsList.jsx';
 
 import styles from './PostCard.module.css';
@@ -30,12 +32,12 @@ const formatRelativeTime = (isoString) => {
 };
 
 const visibilityMeta = {
-  public: { label: 'Public', icon: '🌍' },
-  friends: { label: 'Friends', icon: '👥' },
-  private: { label: 'Private', icon: '🔒' },
+  public: { label: 'Public' },
+  friends: { label: 'Friends' },
+  private: { label: 'Only me' },
 };
 
-const PostCard = ({ post, onDelete, onUpdate }) => {
+const PostCard = ({ post, onDelete, onUpdate, arrivedLive = false }) => {
   const { user: currentUser } = useAuth();
 
   const isOwnPost = currentUser?.id === post.author_id;
@@ -115,7 +117,9 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
 
   if (isEditing) {
     return (
-      <article className={styles.card}>
+      <article
+      className={`${styles.card} ${arrivedLive ? 'bestiz-arrived' : ''}`}
+    >
         <header className={styles.header}>
           <div className={styles.author}>
             <span className={styles.displayName}>{post.author_display_name}</span>
@@ -152,9 +156,9 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
             onChange={(e) => setEditVisibility(e.target.value)}
             disabled={saving}
           >
-            <option value="public">🌍 Public</option>
-            <option value="friends">👥 Friends only</option>
-            <option value="private">🔒 Only me</option>
+            <option value="public">Public</option>
+            <option value="friends">Friends only</option>
+            <option value="private">Only me</option>
           </select>
 
           <div className={styles.editButtons}>
@@ -182,15 +186,24 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
         : `Show comments (${commentsCount})`;
 
   return (
-    <article className={styles.card}>
+    <article
+      className={`${styles.card} ${arrivedLive ? 'bestiz-arrived' : ''}`}
+    >
       <header className={styles.header}>
         <Link to={`/users/${post.author_id}`} className={styles.author}>
-          <span className={styles.displayName}>{post.author_display_name}</span>
-          <span className={styles.username}>@{post.author_username}</span>
+          <Avatar
+            name={post.author_display_name}
+            userId={post.author_id}
+            size={42}
+          />
+          <span className={styles.authorText}>
+            <span className={styles.displayName}>
+              {post.author_display_name}
+            </span>
+            <span className={styles.username}>@{post.author_username}</span>
+          </span>
         </Link>
-        <span className={styles.visibility} title={meta.label}>
-          {meta.icon} {meta.label}
-        </span>
+        <VisibilityTag visibility={post.visibility} />
       </header>
 
       <p className={styles.content}>{post.content}</p>

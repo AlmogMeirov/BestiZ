@@ -12,6 +12,7 @@ import * as friendsApi from '../../api/friendsApi.js';
 import Button from '../../components/Button/Button.jsx';
 
 import styles from './FriendsPage.module.css';
+import { PersonSkeleton, SkeletonGroup } from '../../components/Skeleton/Skeleton.jsx';
 
 const FriendsPage = () => {
   const [friends, setFriends] = useState([]);
@@ -57,7 +58,13 @@ const FriendsPage = () => {
   };
 
   if (loading) {
-    return <div className={styles.message}>Loading...</div>;
+    return (
+      <SkeletonGroup label="Loading friends">
+        <PersonSkeleton />
+        <PersonSkeleton />
+        <PersonSkeleton />
+      </SkeletonGroup>
+    );
   }
 
   if (error && friends.length === 0) {

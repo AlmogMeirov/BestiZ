@@ -1,0 +1,163 @@
+.rail {
+  position: sticky;
+  top: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.section {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 16px 12px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: 10px;
+}
+
+/* The number is a fact, not an alert, so it stays in the quiet palette. The
+   one warm badge in the interface belongs to unread messages. */
+.count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background-color: var(--color-sunken);
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 7px 0;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-md);
+  transition: opacity 0.15s ease;
+}
+
+.person:hover .name {
+  color: var(--color-primary);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.handle {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The two decisions sit under the name rather than beside it: at this width
+   a name and two buttons on one line leaves room for neither. */
+.actions {
+  display: flex;
+  gap: 7px;
+  padding-left: 49px;
+}
+
+.accept,
+.decline {
+  flex: 1;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.16s ease, color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.accept {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.accept:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.decline {
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
+  border-color: var(--color-border-strong);
+}
+
+.decline:hover:not(:disabled) {
+  background-color: var(--color-sunken);
+  color: var(--color-text);
+}
+
+.accept:disabled,
+.decline:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.more {
+  display: block;
+  margin-top: 6px;
+  padding: 8px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: background-color 0.16s ease;
+}
+
+.more:hover {
+  background-color: var(--color-primary-wash);
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 0;
+}

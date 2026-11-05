@@ -1,31 +1,98 @@
-/* 
- * Global styles and CSS variables for BestiZ.
- * Centralizing them here makes it easy to update colors and spacing across the whole app.
+/*
+ * Global styles and design tokens for BestiZ.
+ *
+ * Everything visual is expressed here as a token, so a change to the palette
+ * or the type scale happens once rather than in twenty CSS modules. The
+ * modules consume these and define layout only.
+ *
+ * Three decisions worth stating, since they are the ones that carry the look:
+ *
+ *  1. A real typeface. The browser's default UI font is what a page gets when
+ *     nobody chose one, and it reads that way.
+ *
+ *  2. Shadows in two layers. A single flat shadow sits under an element like
+ *     a sticker; real light casts a tight contact shadow at the edge and a
+ *     wide soft one further out. Two layers is the cheapest way to say
+ *     "above the page" rather than "pasted onto it".
+ *
+ *  3. The primary colour has two forms — a solid for actions and a wash for
+ *     backgrounds. One colour doing both jobs is what forces every accent to
+ *     shout.
  */
 
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
 :root {
-  --color-bg: #f8fafc;
+  /* ----- surfaces ----- */
+  --color-bg: #f6f6fa;
   --color-surface: #ffffff;
-  --color-text: #1e293b;
-  --color-text-muted: #64748b;
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-success: #16a34a;
-  --color-error: #dc2626;
-  --color-border: #e2e8f0;
+  /* A recessed surface: search fields, chips, the other person's bubbles.
+     Reads as "below the card" without needing a border. */
+  --color-sunken: #f1f1f7;
 
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  /* ----- text ----- */
+  --color-text: #16151f;
+  --color-text-2: #3d3b4d;
+  --color-text-muted: #73708a;
+  --color-text-faint: #a5a2b8;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  /* ----- brand ----- */
+  --color-primary: #5a48e8;
+  --color-primary-hover: #4b39d6;
+  --color-primary-wash: #efecfe;
+  --color-primary-ring: rgba(90, 72, 232, 0.16);
 
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  /* ----- status ----- */
+  --color-success: #0a9d78;
+  --color-success-wash: #e8f7f2;
+  --color-error: #d8403c;
+  --color-error-wash: #fdf2f1;
+  --color-error-line: #f6d7d5;
+  /* Used only for counts that are waiting on the person. Deliberately the one
+     warm colour in the system, so a badge never competes with an action. */
+  --color-alert: #ff6257;
+
+  /* ----- lines ----- */
+  --color-border: #ecebf3;
+  --color-border-strong: #e2e0ec;
+
+  /* ----- radii ----- */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* ----- elevation ----- */
+  --shadow-sm: 0 1px 2px rgba(22, 21, 31, 0.05), 0 1px 1px rgba(22, 21, 31, 0.03);
+  --shadow-md: 0 2px 6px rgba(22, 21, 31, 0.05), 0 10px 28px rgba(22, 21, 31, 0.07);
+  --shadow-lg: 0 4px 10px rgba(22, 21, 31, 0.06), 0 20px 48px rgba(32, 28, 66, 0.12);
+  /* A coloured glow, for the one button on screen that matters most. */
+  --shadow-primary: 0 1px 2px rgba(22, 21, 31, 0.1), 0 6px 16px rgba(90, 72, 232, 0.28);
+  --shadow-primary-hover: 0 2px 4px rgba(22, 21, 31, 0.12), 0 10px 22px rgba(90, 72, 232, 0.34);
+
+  /* ----- spacing ----- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Headings tighten as they grow; body text stays at its natural width.
+     This is the single typographic move that makes a page look set rather
+     than typed. */
+  --tracking-tight: -0.022em;
+  --tracking-tighter: -0.034em;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Modern CSS reset: removes default browser styles for consistent layout. */
 *,
 *::before,
 *::after {
@@ -42,67 +109,149 @@ body,
 
 body {
   font-family: var(--font-family);
+  font-size: 15px;
   background-color: var(--color-bg);
   color: var(--color-text);
   line-height: 1.5;
+  letter-spacing: -0.004em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/*  App layout (used by App.jsx) */
-.app {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+h1, h2, h3 {
+  letter-spacing: var(--tracking-tighter);
+  line-height: 1.18;
 }
 
-.card {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: 32px;
-  max-width: 420px;
-  width: 100%;
+h4, h5, h6 {
+  letter-spacing: var(--tracking-tight);
 }
 
-.card h1 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 8px;
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
 }
 
-.card p {
-  color: var(--color-text-muted);
-  margin-bottom: 24px;
+button {
+  cursor: pointer;
 }
 
-.status-section {
-  border-top: 1px solid var(--color-border);
-  padding-top: 16px;
+/*
+ * One focus ring for the whole application.
+ *
+ * `:focus-visible` rather than `:focus` so it appears for keyboard users and
+ * stays out of the way of mouse clicks. The white inner ring keeps it legible
+ * on both white cards and the tinted page background.
+ */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-surface), 0 0 0 6px var(--color-primary);
+  border-radius: var(--radius-sm);
 }
 
-.status-section h2 {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted);
-  margin-bottom: 8px;
+::selection {
+  background: var(--color-primary-wash);
+  color: var(--color-primary-hover);
 }
 
-.status {
-  font-weight: 500;
+/*
+ * Skeleton placeholder.
+ *
+ * A sweep of light across a shape the size of the content that is coming, so
+ * the layout is already in place when the data lands and nothing jumps. The
+ * shimmer is what distinguishes "loading" from "empty".
+ */
+@keyframes bestiz-shimmer {
+  to {
+    background-position: -200% 0;
+  }
 }
 
-.status.loading {
-  color: var(--color-text-muted);
+.bestiz-skeleton {
+  background: linear-gradient(
+    90deg,
+    #edecf3 0%,
+    #f6f5fa 42%,
+    #edecf3 68%
+  );
+  background-size: 200% 100%;
+  animation: bestiz-shimmer 1.35s linear infinite;
+  border-radius: var(--radius-sm);
 }
 
-.status.ok {
-  color: var(--color-success);
+/*
+ * Arrival.
+ *
+ * Applied to a post or a message that reached the screen over the socket
+ * rather than from something the viewer just did. Without it there is no
+ * way to tell a live update from a page that was refreshed — which hides the
+ * one thing this application is built to demonstrate.
+ *
+ * The tint fades over two seconds and leaves nothing behind.
+ */
+@keyframes bestiz-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.status.error {
-  color: var(--color-error);
+@keyframes bestiz-settle {
+  0%, 18% {
+    box-shadow: var(--shadow-sm), 0 0 0 2px var(--color-primary);
+    background-color: var(--color-primary-wash);
+  }
+  100% {
+    box-shadow: var(--shadow-sm), 0 0 0 0 rgba(90, 72, 232, 0);
+    background-color: var(--color-surface);
+  }
+}
+
+.bestiz-arrived {
+  animation: bestiz-arrive 0.42s var(--ease-out),
+    bestiz-settle 2.4s ease-out 0.42s;
+}
+
+@keyframes bestiz-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.bestiz-popped {
+  animation: bestiz-pop 0.34s var(--ease-out);
+}
+
+/*
+ * Motion is a courtesy, not a requirement. Anyone who has asked their system
+ * to reduce it gets the same information with none of the movement — the
+ * skeleton still reads as loading because it is still a placeholder.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .bestiz-skeleton {
+    animation: none;
+    background: #edecf3;
+  }
 }

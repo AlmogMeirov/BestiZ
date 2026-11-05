@@ -1,124 +1,235 @@
 /*
- * CreatePost styles.
- * This CSS module defines styles for the CreatePost component, which includes:
- *  - A card container with padding and border.
-  *  - A textarea for post content with focus styles.
-  *  - An input for optional image URL with similar styles to the textarea.
-  *  - A footer with visibility selector and submit button. */
+ * The composer.
+ *
+ * It used to be three bordered fields stacked on top of each other, which
+ * made writing a sentence look like filling in a form. Now there is one place
+ * to type — borderless, sitting directly on the card next to your own avatar
+ * — and everything else is a control on the row underneath.
+ *
+ * The audience chips are radio inputs with the input itself hidden. The label
+ * stays clickable, the arrow keys still move between options, and the focus
+ * ring still appears, because the input is only visually hidden rather than
+ * removed.
+ */
 
 .card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+.composeRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
 .textarea {
-  width: 100%;
-  padding: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 2px;
   font-family: inherit;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.55;
   color: var(--color-text);
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  resize: vertical;
-  min-height: 80px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  box-sizing: border-box;
+  background: none;
+  border: none;
+  resize: none;
+  min-height: 52px;
+  field-sizing: content;
+  max-height: 320px;
 }
 
 .textarea::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-text-faint);
 }
 
 .textarea:focus {
   outline: none;
-  border-color: var(--color-primary);
-  background-color: var(--color-surface);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .urlInput {
   width: 100%;
-  padding: 8px 12px;
+  padding: 11px 15px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text);
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  box-sizing: border-box;
+  background-color: var(--color-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease,
+    background-color 0.16s ease;
 }
 
 .urlInput::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-text-faint);
 }
 
 .urlInput:focus {
   outline: none;
   border-color: var(--color-primary);
   background-color: var(--color-surface);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 4px var(--color-primary-wash);
 }
 
 .footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
   flex-wrap: wrap;
 }
 
-.left {
+.audience {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 4px;
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
 }
 
-.right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.visibilityLabel {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  font-weight: 500;
-}
-
-.select {
-  padding: 6px 10px;
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--color-text);
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+.chip {
   cursor: pointer;
 }
 
-.select:focus {
-  outline: none;
-  border-color: var(--color-primary);
+.chipFace {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-sunken);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.chip:hover .chipFace {
+  color: var(--color-text);
+}
+
+.chip input:checked + .chipFace {
+  background-color: var(--color-primary-wash);
+  color: var(--color-primary);
+}
+
+/* The hidden radio still receives focus, so the ring has to land on the part
+   that is actually visible. */
+.chip input:focus-visible + .chipFace {
+  box-shadow: 0 0 0 3px var(--color-surface), 0 0 0 6px var(--color-primary);
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-sunken);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.iconButton svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.iconButton:hover:not(:disabled) {
+  color: var(--color-text);
+}
+
+.iconButtonOn,
+.iconButtonOn:hover:not(:disabled) {
+  background-color: var(--color-primary-wash);
+  color: var(--color-primary);
 }
 
 .counter {
-  font-size: 12px;
-  color: var(--color-text-muted);
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .alert {
-  background-color: rgba(220, 38, 38, 0.08);
+  background-color: var(--color-error-wash);
   color: var(--color-error);
-  font-size: 13px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-error-line);
+}
+
+/*
+ * Visually hidden, still announced. Used for the fieldset's legend and for
+ * the radio inputs themselves: both have to exist for the control to be
+ * understood by a screen reader, and neither should be drawn.
+ */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 720px) {
+  .card {
+    padding: 15px 16px;
+  }
+
+  /* The counter is the first thing to go: it matters at 4,900 characters and
+     never before, and at this width it is the difference between the whole
+     row fitting and the Post button falling onto a line of its own. */
+  .counter {
+    display: none;
+  }
+
+  .footer {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .audience {
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .chipFace {
+    padding: 7px 11px;
+    font-size: 12.5px;
+  }
+
+  .iconButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  .footer :global(button[type='submit']) {
+    margin-left: auto;
+    padding: 9px 16px;
+  }
 }

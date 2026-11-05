@@ -17,22 +17,39 @@
 
 .card {
   background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  padding-bottom: 24px;
+  padding-bottom: 26px;
   /* Full-width within the page container. */
   width: 100%;
 }
 
+/*
+ * The cover.
+ *
+ * A two-stop linear gradient between two stock colours is the most
+ * recognisable shortcut in interface design, and it looks like one. Four
+ * stops give the ramp somewhere to go, and the radial wash in the top-left
+ * corner adds a light source — without it a gradient is a flat sheet of
+ * colour that happens to change hue.
+ */
 .cover {
-  height: 220px;
-  background: linear-gradient(
-    120deg,
-    #6366f1 0%,
-    #8b5cf6 50%,
-    #ec4899 100%
-  );
+  height: 200px;
+  background:
+    radial-gradient(
+      120% 150% at 12% 0%,
+      rgba(255, 255, 255, 0.26) 0%,
+      rgba(255, 255, 255, 0) 52%
+    ),
+    linear-gradient(
+      118deg,
+      #4b39d6 0%,
+      #6e4fe4 42%,
+      #9b59c9 72%,
+      #d06aa4 100%
+    );
 }
 
 /* Row that holds the (large) avatar on the left. The avatar overlaps
@@ -47,10 +64,14 @@
   margin-top: -60px;
 }
 
+/* A thick ring in the card's own colour cuts the avatar out of the cover
+   behind it, which is what lets it sit across the boundary instead of on
+   top of it. */
 .avatar {
   box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
     0 0 0 5px var(--color-surface),
-    0 8px 24px rgba(15, 23, 42, 0.22);
+    0 8px 24px rgba(22, 21, 31, 0.18);
 }
 
 /* Action buttons (Edit profile / Add friend / etc).
@@ -61,7 +82,7 @@
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
-  margin: 16px 32px 0 32px;
+  margin: 20px 32px 0 32px;
 }
 
 /* Text block below the row: name, @username, bio, meta. */
@@ -70,23 +91,25 @@
 }
 
 .displayName {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0 0 4px 0;
-  line-height: 1.2;
+  font-size: 31px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-tighter);
+  margin: 0 0 2px 0;
+  line-height: 1.15;
   color: var(--color-text);
 }
 
 .username {
-  font-size: 16px;
-  color: var(--color-text-muted);
-  margin: 0 0 16px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-faint);
+  margin: 0 0 14px 0;
 }
 
 .bio {
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--color-text);
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--color-text-2);
   margin: 0 0 16px 0;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -96,9 +119,10 @@
 .meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px 24px;
+  gap: 12px 22px;
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: 13.5px;
+  font-weight: 600;
 }
 
 .metaItem {
@@ -108,8 +132,14 @@
 }
 
 .metaIcon {
-  font-size: 16px;
-  line-height: 1;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .statusBadge {
@@ -125,12 +155,12 @@
 
 .alert {
   margin: 16px 32px 0 32px;
-  background-color: rgba(220, 38, 38, 0.08);
+  background-color: var(--color-error-wash);
   color: var(--color-error);
   font-size: 13px;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  border: 1px solid var(--color-error-line);
 }
 
 .message {

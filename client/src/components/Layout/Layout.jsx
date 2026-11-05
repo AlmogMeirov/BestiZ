@@ -22,6 +22,7 @@ import {
   MessengerProvider,
   useMessenger,
 } from '../../contexts/MessengerContext.jsx';
+import Avatar from '../Avatar/Avatar.jsx';
 import Button from '../Button/Button.jsx';
 import Messenger from '../Messenger/Messenger.jsx';
 import SearchBar from '../SearchBar/SearchBar.jsx';
@@ -69,7 +70,9 @@ const LayoutInner = () => {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link to="/feed" className={styles.brand}>
-            BestiZ
+            {/* The Z carries the brand colour on its own, so the header does
+                not need a logo image to be recognisable. */}
+            Besti<span className={styles.brandMark}>Z</span>
           </Link>
 
           <div className={styles.searchWrapper}>
@@ -107,6 +110,11 @@ const LayoutInner = () => {
           <div className={styles.userArea}>
             {user && (
               <Link to={`/users/${user.id}`} className={styles.userName}>
+                <Avatar
+                  name={user.display_name || user.username}
+                  userId={user.id}
+                  size={30}
+                />
                 {user.display_name || user.username}
               </Link>
             )}
